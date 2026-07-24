@@ -26,6 +26,14 @@ export type Weather = "mild" | "average" | "extreme";
 export type Baseline = "gas" | "propane" | "electric";
 export type HeatPumpType = "ashp" | "ccashp" | "gshp";
 
+// Sensitivity scenarios per the Calculator Design doc:
+//   "Electricity prices stay the same and natural gas increases; or
+//    Electricity prices increase and natural gas stays the same."
+// Escalation rate of 3%/yr is a round assumption in line with recent
+// EIA residential price trends; adjust when validated further.
+export type PriceScenario = "flat" | "fossilUp" | "elecUp";
+const ESCALATION = 0.03;
+
 export interface CalcInputs {
   size: HomeSize;
   customSqft: number; // used when size === "custom"
@@ -34,6 +42,7 @@ export interface CalcInputs {
   indoorTemp: number; // winter setpoint, 64–74
   weather: Weather;
   baseline: Baseline;
+  scenario: PriceScenario;
 }
 
 // ── constants (placeholder defaults, sources noted above) ──
@@ -192,12 +201,50 @@ export function runCalculator(inputs: CalcInputs): CalcResults {
     };
   }
 
+  // Escalation multipliers per year for each scenario.
+  // Electricity applies to HP costs and baseline cooling + electric heat;
+  // "fossil" applies to gas and propane heating costs.
+  function yearMult(kind: "elec" | "fossil", year: number): number {
+    const s = inputs.scenario;
+    if (s === "flat") return 1;
+    if (s === "fossilUp") return kind === "fossil" ? Math.pow(1 + ESCALATION, year) : 1;
+    return kind === "elec" ? Math.pow(1 + ESCALATION, year) : 1;
+  }
+
+  // Baseline cost split: how much of the annual cost rides on each fuel
+  function baselineCostSplit(b: Baseline): { elec: number; fossil: number } {
+    const acKwh = coolingKwh(BASELINE_AC_SEER2);
+    const coolCost = acKwh * PRICE.elecPerKwh;
+    if (b === "gas") {
+      const therms = heatingBtu / (100000 * SYSTEMS.gas.afue);
+      return { elec: coolCost, fossil: therms * PRICE.gasPerTherm };
+    }
+    if (b === "propane") {
+      const gallons = heatingBtu / (91500 * SYSTEMS.propane.afue);
+      return { elec: coolCost, fossil: gallons * PRICE.propanePerGal };
+    }
+    const kwh = heatingBtu / 3412;
+    return { elec: coolCost + kwh * PRICE.elecPerKwh, fossil: 0 };
+  }
+
   const basePartial = evalBaseline(inputs.baseline);
+  const baseSplit = baselineCostSplit(inputs.baseline);
+
+  function baselineYearCost(year: number): number {
+    return (
+      baseSplit.elec * yearMult("elec", year) +
+      baseSplit.fossil * yearMult("fossil", year)
+    );
+  }
+
+  let baseFifteen = basePartial.installCost;
+  for (let y = 0; y < 15; y++) baseFifteen += baselineYearCost(y);
+
   const baseline: SystemResult = {
     ...basePartial,
     pctVsBaseline: 0,
     monthlyDelta: 0,
-    fifteenYearTotal: basePartial.installCost + basePartial.annualCost * 15,
+    fifteenYearTotal: baseFifteen,
     breakevenMonth: null,
   };
 
@@ -206,13 +253,22 @@ export function runCalculator(inputs: CalcInputs): CalcResults {
       const p = evalHeatPump(hp);
       const monthlyDelta = p.monthlyCost - baseline.monthlyCost;
       const installDelta = p.installCost - baseline.installCost;
-      const fifteenYearTotal = p.installCost + p.annualCost * 15;
 
-      // Breakeven: month where cumulative savings offset extra install cost
+      let fifteenYearTotal = p.installCost;
+      for (let y = 0; y < 15; y++) {
+        fifteenYearTotal += p.annualCost * yearMult("elec", y);
+      }
+
+      // Breakeven: first month where cumulative total cost (install +
+      // escalated operating) drops below the baseline's cumulative total
       let breakevenMonth: number | null = null;
-      if (monthlyDelta < 0) {
-        const m = Math.ceil(installDelta / -monthlyDelta);
-        breakevenMonth = m > 0 && m <= 180 ? m : m <= 0 ? 1 : null;
+      let hpCum = p.installCost;
+      let baseCum = basePartial.installCost;
+      for (let m = 1; m <= 180 && breakevenMonth === null; m++) {
+        const y = Math.floor((m - 1) / 12);
+        hpCum += (p.annualCost * yearMult("elec", y)) / 12;
+        baseCum += baselineYearCost(y) / 12;
+        if (hpCum <= baseCum) breakevenMonth = m;
       }
 
       return {

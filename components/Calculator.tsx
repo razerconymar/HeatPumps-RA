@@ -8,6 +8,7 @@ import {
   Insulation,
   Weather,
   Baseline,
+  PriceScenario,
 } from "@/lib/calculator";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -22,6 +23,7 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
     indoorTemp: 68,
     weather: "average",
     baseline: "gas",
+    scenario: "flat",
   });
 
   const results = useMemo(() => runCalculator(inputs), [inputs]);
@@ -148,6 +150,29 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
           </div>
 
           <div className="calc-field">
+            <label className="calc-label">
+              What if energy prices change? (15-year outlook)
+            </label>
+            <div className="seg-row">
+              {(
+                [
+                  ["flat", "Prices stay level"],
+                  ["fossilUp", "Gas/propane rise 3%/yr"],
+                  ["elecUp", "Electricity rises 3%/yr"],
+                ] as [PriceScenario, string][]
+              ).map(([v, label]) => (
+                <button
+                  key={v}
+                  className={"seg" + (inputs.scenario === v ? " on" : "")}
+                  onClick={() => set("scenario", v)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="calc-field">
             <label className="calc-label">Your current system</label>
             <div className="seg-row">
               {(
@@ -210,7 +235,7 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
                   <div className="stat-val">
                     {hp.breakevenMonth
                       ? `${Math.round(hp.breakevenMonth / 12)} yrs`
-                      : "—"}
+                      : " - "}
                   </div>
                   <div className="stat-label">
                     {hp.breakevenMonth
@@ -224,10 +249,12 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
         </div>
 
         <div className="source-tag">
-          <span className="source-pill placeholder">Estimates — needs validation</span>
+          <span className="source-pill validated">Estimates</span>
           <span>
-            Degree-day model. Prices, emissions, and install costs are
-            placeholder defaults pending EIA, NOAA, NEEP, and EPA eGRID data.
+            Degree-day model. Energy prices from EIA and IURC surveys (July
+            2026). Emissions and install costs are defaults pending EPA eGRID
+            and local quote validation. Not a substitute for a contractor
+            estimate.
           </span>
         </div>
       </article>

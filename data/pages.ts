@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// Heat Pump DST — Page graph
+// Heat Pump DST - Page graph
 //
 // Structure follows the DST Storyboard & Navigation doc exactly:
 // alphanumeric page codes, landing page question links, and
@@ -38,11 +38,11 @@ export const pages: Record<string, Page> = {
     title: "Will a heat pump save me money?",
     status: "drafted",
     body: [
-      "Many homeowners reduce their heating and cooling costs after installing a heat pump. Whether you will save money — and how much — depends on your current heating system, local energy prices, installation costs, and available incentives.",
+      "Many homeowners reduce their heating and cooling costs after installing a heat pump. Whether you will save money - and how much - depends on your current heating system, local energy prices, installation costs, and available incentives.",
       "For some homeowners, the financial case is straightforward. For others, it is more balanced. This section will help you understand which situation is more likely for your home.",
       "- If you currently heat with propane, savings are usually substantial",
       "- If you currently have an electric resistance furnace or baseboard heat, savings are usually substantial",
-      "- If you currently have a gas furnace, it depends — monthly costs are often similar, and the higher upfront cost may not be recovered without rebates",
+      "- If you currently have a gas furnace, it depends - monthly costs are often similar, and the higher upfront cost may not be recovered without rebates",
       "The upfront cost of a heat pump is often higher than replacing a furnace or air conditioner with similar equipment. Many homeowners recover some or all of that additional cost through lower energy bills over time, but the timing varies. To make an informed decision, you'll want to know the factors in the upfront cost, how your monthly bill will change, and whether rebates can reduce the overall cost.",
     ],
     links: [
@@ -64,12 +64,12 @@ export const pages: Record<string, Page> = {
     body: [
       "The largest financial hurdle for many homeowners is the upfront cost of installing a heat pump. Fortunately, the amount you actually pay depends on several factors, and many homeowners qualify for rebates, tax credits, or financing that reduce the initial cost.",
       "## The heat pump itself",
-      "Heat pumps vary in price by size, efficiency, and features. Most homeowners install an air-source heat pump, suitable for the vast majority of homes. Cold-climate air-source models are built for regions with weeks of below-freezing winters. Ground-source (geothermal) systems cost considerably more because they require underground piping — most homeowners will not need one.",
+      "Heat pumps vary in price by size, efficiency, and features. Most homeowners install an air-source heat pump, suitable for the vast majority of homes. Cold-climate air-source models are built for regions with weeks of below-freezing winters. Ground-source (geothermal) systems cost considerably more because they require underground piping - most homeowners will not need one.",
       "In Indiana, average installed heat pump costs are around $11,500, compared with roughly $4,000–$10,000 for gas furnaces and $3,000–$7,500 for central air conditioners. Replacing both a furnace and an AC with one heat pump changes that comparison meaningfully.",
       "## Installation",
-      "Installing an air-source heat pump is as straightforward as installing an air conditioner — a licensed installer is required, but there is no extra complexity. Costs vary by contractor, home layout, and whether existing ductwork can be used, so getting more than one quote is worthwhile.",
+      "Installing an air-source heat pump is as straightforward as installing an air conditioner - a licensed installer is required, but there is no extra complexity. Costs vary by contractor, home layout, and whether existing ductwork can be used, so getting more than one quote is worthwhile.",
       "## Electrical upgrades",
-      "Some homes need a panel upgrade first — more common when replacing a gas furnace than electric heating. Heat pumps can run efficiently on a 100 or 150-amp panel, but capacity depends on your home's size and other connected appliances. Panels older than 20–30 years deserve a closer look. A contractor can determine whether your service is adequate.",
+      "Some homes need a panel upgrade first - more common when replacing a gas furnace than electric heating. Heat pumps can run efficiently on a 100 or 150-amp panel, but capacity depends on your home's size and other connected appliances. Panels older than 20–30 years deserve a closer look. A contractor can determine whether your service is adequate.",
       "## Proper sizing",
       "The least expensive system is not always the best value, and a larger system is not necessarily better. Ask prospective contractors whether they will perform a Manual J load calculation. Installers sometimes oversize as insurance, which raises your cost and hurts comfort and humidity control.",
       "## Rebates and financing",
@@ -118,7 +118,7 @@ export const pages: Record<string, Page> = {
       "- Propane heat: savings are often around $855 per year (Rewiring America). If your system is at replacement age, break-even comes much sooner than the 7–12 years for a newly installed one",
       "- Natural gas furnace: operating costs are comparable, so a system-to-system financial break-even is unlikely without rebates for heat pumps or energy efficiency",
       "An alternative to replacing a gas furnace outright is a dual-fuel system: cooling runs entirely on the heat pump, heating runs on the heat pump except in very cold weather, when the furnace takes over automatically.",
-      "Rebates and tax credits can shorten the recovery time. Because every home is different, national averages are a starting point — use the calculator for your situation.",
+      "Rebates and tax credits can shorten the recovery time. Because every home is different, national averages are a starting point - use the calculator for your situation.",
     ],
     links: [
       { label: "Estimate cost savings for my home", target: CALC },
@@ -133,7 +133,7 @@ export const pages: Record<string, Page> = {
     title: "Are there rebates or other financing options?",
     status: "drafted",
     body: [
-      "Financing options for a heat pump, like any large appliance, vary by location. A customer should consider federal, state, county, city, utility, and installation rebates — several of these can stack.",
+      "Financing options for a heat pump, like any large appliance, vary by location. A customer should consider federal, state, county, city, utility, and installation rebates - several of these can stack.",
       "Indiana-specific rebate details are being compiled and validated for this page. Until then, the practical guidance stands: never evaluate a heat pump quote without checking which incentives apply. The net cost after incentives is often significantly lower than the sticker price.",
     ],
     links: [
@@ -153,7 +153,7 @@ export const pages: Record<string, Page> = {
     body: [
       "A heat pump is a heating and cooling system in one. It can replace your air conditioner, your furnace, or both.",
       "Unlike a furnace, a heat pump doesn't create heat by burning fuel. Instead, it moves heat from one place to another.",
-      "During the summer, it works much like a standard air conditioner by moving heat from inside your home to the outdoors. During the winter, it reverses direction. Even when the outdoor air feels cold, it still contains heat — a heat pump captures that heat and moves it indoors to warm your home.",
+      "During the summer, it works much like a standard air conditioner by moving heat from inside your home to the outdoors. During the winter, it reverses direction. Even when the outdoor air feels cold, it still contains heat - a heat pump captures that heat and moves it indoors to warm your home.",
       "Because it moves heat instead of creating it, a heat pump can heat and cool a home using much less energy than many conventional heating systems.",
     ],
     links: [
@@ -195,7 +195,7 @@ export const pages: Record<string, Page> = {
       "## Can increase home value",
       "An energy-efficient system may make your home more attractive to some buyers, with effects varying by market and system quality.",
       "## Good for the planet",
-      "Heat pumps can reduce greenhouse gas emissions through efficiency, with the biggest benefits when replacing fossil fuel heating — and the benefit grows as the grid gets cleaner.",
+      "Heat pumps can reduce greenhouse gas emissions through efficiency, with the biggest benefits when replacing fossil fuel heating - and the benefit grows as the grid gets cleaner.",
       "## Healthier indoor air, and safer",
       "Because heat pumps don't burn fuel inside the home, they avoid indoor combustion pollutants like nitrogen dioxide and carbon monoxide, and they eliminate gas-leak and venting risks associated with combustion heating.",
     ],
@@ -251,7 +251,7 @@ export const pages: Record<string, Page> = {
 
   "3A": {
     code: "3A",
-    title: "My system is failing — I need a replacement now",
+    title: "My system is failing - I need a replacement now",
     status: "drafted",
     body: [
       "Replacing a furnace or air conditioner is rarely something homeowners plan for. When a system fails, there is often pressure to decide quickly.",
@@ -277,9 +277,9 @@ export const pages: Record<string, Page> = {
       "## What type of heating do you have now?",
       "Replacing propane or electric resistance heating often leads to larger operating savings. Replacing natural gas can still make sense, but the financial picture is usually more variable.",
       "## Does your climate require backup heat?",
-      "Cold-climate air-source heat pumps now work effectively down to −13°F. A standard air-source unit works effectively down to 25°F — a big difference, since many households see weeks below that. Heat pumps can be paired with a gas furnace as backup; the changeover temperature is set in advance by the installer, so you don't have to manage anything.",
+      "Cold-climate air-source heat pumps now work effectively down to −13°F. A standard air-source unit works effectively down to 25°F - a big difference, since many households see weeks below that. Heat pumps can be paired with a gas furnace as backup; the changeover temperature is set in advance by the installer, so you don't have to manage anything.",
       "## Will your home need electrical upgrades?",
-      "Some homes require a panel upgrade before installing a heat pump — more likely when switching from gas than from electric heat. A qualified contractor can determine whether your service has sufficient capacity.",
+      "Some homes require a panel upgrade before installing a heat pump - more likely when switching from gas than from electric heat. A qualified contractor can determine whether your service has sufficient capacity.",
     ],
     links: [
       { label: "What should I ask a contractor?", target: "3C" },
@@ -297,13 +297,13 @@ export const pages: Record<string, Page> = {
       "## How much experience do you have installing heat pumps?",
       "Not every contractor has extensive heat pump experience, and some had bad experiences with pre-2010 models that genuinely underperformed. Ask how often they install heat pumps and whether they've worked on homes like yours.",
       "## Will you perform a Manual J load calculation?",
-      "A Manual J estimates how much heating and cooling your home actually needs. Too small struggles in extreme weather; too large costs more, cycles too frequently, and removes less humidity in summer. Installers may prefer oversizing as insurance — it's important to be aware in advance. The most thorough approach adds a blower door test and a Manual S sizing calculation.",
+      "A Manual J estimates how much heating and cooling your home actually needs. Too small struggles in extreme weather; too large costs more, cycles too frequently, and removes less humidity in summer. Installers may prefer oversizing as insurance - it's important to be aware in advance. The most thorough approach adds a blower door test and a Manual S sizing calculation.",
       "## Which type of heat pump do you recommend, and why?",
-      "The recommendation should reflect your climate, your current system, and your home — not just the contractor's preferred equipment. If the explanation is simply \"this is what we always install,\" ask more questions.",
+      "The recommendation should reflect your climate, your current system, and your home - not just the contractor's preferred equipment. If the explanation is simply \"this is what we always install,\" ask more questions.",
       "## Will I need an electrical panel upgrade?",
       "Electrical work increases installation costs, so understand whether your home needs upgrades before comparing quotes.",
       "## Can you explain why you selected this system?",
-      "Why this size? Why this model? Why this backup heat, if any? You're not looking for a \"right\" answer — you're looking for reasoning that connects the recommendation to your home. Getting two or three estimates helps; if contractors recommend very different systems, the reasoning behind each is as informative as the price.",
+      "Why this size? Why this model? Why this backup heat, if any? You're not looking for a \"right\" answer - you're looking for reasoning that connects the recommendation to your home. Getting two or three estimates helps; if contractors recommend very different systems, the reasoning behind each is as informative as the price.",
     ],
     links: [
       { label: "How do I know if it's a good financial decision?", target: "3D" },
@@ -317,17 +317,17 @@ export const pages: Record<string, Page> = {
     title: "How do I know if it's a good financial decision?",
     status: "drafted",
     body: [
-      "If you're already replacing a furnace or air conditioner, this is the right time to compare all your options — not just replace your existing system with the same type of equipment. The financial decision balances higher upfront costs against future energy savings.",
+      "If you're already replacing a furnace or air conditioner, this is the right time to compare all your options - not just replace your existing system with the same type of equipment. The financial decision balances higher upfront costs against future energy savings.",
       "## What are you replacing?",
       "- Electric resistance or baseboard heat: substantially lower monthly bills make the case relatively straightforward",
       "- Propane: often one of the more expensive heating fuels, so many homeowners reduce annual costs considerably",
-      "- Natural gas: often less expensive and already relatively efficient, so the comparison is much closer — some homeowners save, others find monthly costs similar and decide financial savings alone aren't enough",
-      "That doesn't make a heat pump a poor choice — it means homeowners may place greater value on other benefits like year-round comfort, indoor air quality, or lower emissions.",
+      "- Natural gas: often less expensive and already relatively efficient, so the comparison is much closer - some homeowners save, others find monthly costs similar and decide financial savings alone aren't enough",
+      "That doesn't make a heat pump a poor choice - it means homeowners may place greater value on other benefits like year-round comfort, indoor air quality, or lower emissions.",
       "## How long do you expect to stay in your home?",
       "Upfront costs are recovered gradually. More years in the home means more time to recover the investment.",
       "## Don't forget rebates and tax credits",
       "Federal credits, utility rebates, and state or local programs can substantially reduce upfront costs and shorten the recovery time.",
-      "Use averages as a starting point, not your final answer — the calculator estimates installation costs, monthly operating costs, and time to recover the investment for your home.",
+      "Use averages as a starting point, not your final answer - the calculator estimates installation costs, monthly operating costs, and time to recover the investment for your home.",
     ],
     links: [
       { label: "Estimate cost savings for my home", target: CALC },
@@ -346,7 +346,7 @@ export const pages: Record<string, Page> = {
       "If you've heard conflicting opinions about heat pumps, you're not alone. Some homeowners say they're one of the best home improvements they've made. Others say they don't work in cold weather, cost too much, or aren't worth the investment. The reality is more nuanced.",
       "Heat pumps have improved significantly over the past decade, and millions are now used across a wide range of climates. At the same time, they are not the best choice for every home or every homeowner.",
       "Whether a heat pump makes sense depends on what heating system you have today, where you live, how well your home retains heat, local energy prices, and what matters most to you.",
-      "This section looks at the most common claims about heat pumps and explains what current evidence tells us — and where the answer depends on your situation.",
+      "This section looks at the most common claims about heat pumps and explains what current evidence tells us - and where the answer depends on your situation.",
     ],
     links: [
       { label: "What should I know about affordability?", target: "4B" },
@@ -364,7 +364,7 @@ export const pages: Record<string, Page> = {
     body: [
       "One of the most common claims about heat pumps is that they always save money. The evidence is more nuanced.",
       "For many homeowners, heat pumps reduce monthly costs because they use energy very efficiently. But the amount depends on what you're replacing: electric resistance and propane replacements often see substantial savings, while natural gas comparisons are much closer because gas is relatively inexpensive in many areas.",
-      "Heat pumps often cost more to install than similar-equipment replacements, though rebates, tax credits, and utility incentives can reduce those upfront costs. Compare total cost — installation, monthly bills, maintenance, incentives, and how long you expect to stay — not just today's price.",
+      "Heat pumps often cost more to install than similar-equipment replacements, though rebates, tax credits, and utility incentives can reduce those upfront costs. Compare total cost - installation, monthly bills, maintenance, incentives, and how long you expect to stay - not just today's price.",
       "## Why do people reach different conclusions?",
       "Two homeowners can honestly have different experiences. One replaces propane heating, receives rebates, and cuts bills substantially. Another replaces a newer gas furnace where gas is cheap and sees much smaller savings. Both experiences are true. Understanding what you're replacing is usually the best starting point.",
     ],
@@ -384,7 +384,7 @@ export const pages: Record<string, Page> = {
       "Many standard air-source heat pumps continue providing heat around 25°F (−4°C). Cold-climate models are designed to keep operating around −13°F (−25°C). Every heat pump becomes less efficient as temperatures drop, so depending on your climate and model, your system may include backup heat for the coldest days.",
       "Proper sizing is critical, and so is your home itself: a drafty home loses heat quickly regardless of the heating system. For an extremely drafty home, sealing and insulating first is often the better investment before considering a heat pump.",
       "## Why do people still say they don't work?",
-      "Earlier generations genuinely performed worse in cold weather. Some homeowners also compare standard units with cold-climate models without realizing they're designed for different conditions. And every heating system has limits — in very cold climates, some homes use a cold-climate unit or a dual-fuel system.",
+      "Earlier generations genuinely performed worse in cold weather. Some homeowners also compare standard units with cold-climate models without realizing they're designed for different conditions. And every heating system has limits - in very cold climates, some homes use a cold-climate unit or a dual-fuel system.",
       "Modern heat pumps work well in cold climates when the equipment is matched to the climate and the home.",
     ],
     links: [
@@ -400,9 +400,9 @@ export const pages: Record<string, Page> = {
     status: "drafted",
     body: [
       "Yes. This is one of the most common surprises homeowners mention after switching from a furnace.",
-      "A gas furnace typically delivers very warm air for short periods. A heat pump usually delivers moderately warm air for longer periods — instead of bursts of heat, it maintains a more consistent indoor temperature. That slower, longer airflow is part of how it achieves its efficiency.",
+      "A gas furnace typically delivers very warm air for short periods. A heat pump usually delivers moderately warm air for longer periods - instead of bursts of heat, it maintains a more consistent indoor temperature. That slower, longer airflow is part of how it achieves its efficiency.",
       "Some homeowners initially think something is wrong because the air from the vents doesn't feel as hot. In most cases, that's simply how a heat pump is designed to operate.",
-      "Many homeowners report that temperatures throughout the home become more consistent because the system runs longer at lower output. Others prefer the feeling of hotter furnace air. Neither experience is right or wrong — they reflect different heating approaches. A properly sized heat pump should keep your home comfortable, even though the experience feels different.",
+      "Many homeowners report that temperatures throughout the home become more consistent because the system runs longer at lower output. Others prefer the feeling of hotter furnace air. Neither experience is right or wrong - they reflect different heating approaches. A properly sized heat pump should keep your home comfortable, even though the experience feels different.",
     ],
     links: [
       { label: "Is it better for my health and the planet?", target: "4E" },
@@ -416,14 +416,14 @@ export const pages: Record<string, Page> = {
     title: "Is it better for my health and the planet?",
     status: "drafted",
     body: [
-      "The answer is yes — but it helps to separate different kinds of benefits.",
+      "The answer is yes - but it helps to separate different kinds of benefits.",
       "## Indoor air quality",
-      "A heat pump does not burn fuel inside your home, so it doesn't produce combustion pollutants like carbon monoxide or nitrogen dioxide. Most furnaces operate safely when maintained, but eliminating indoor combustion eliminates those pollutants at the source. Indoor air quality also depends on ventilation, filtration, and humidity — a heat pump is one part of a healthy indoor environment, not the only one.",
+      "A heat pump does not burn fuel inside your home, so it doesn't produce combustion pollutants like carbon monoxide or nitrogen dioxide. Most furnaces operate safely when maintained, but eliminating indoor combustion eliminates those pollutants at the source. Indoor air quality also depends on ventilation, filtration, and humidity - a heat pump is one part of a healthy indoor environment, not the only one.",
       "## Home safety",
       "No natural gas or fuel for space heating means no carbon monoxide from furnace combustion, no gas leaks from heating equipment, and no combustion venting problems. Routine maintenance still matters, but the risks are different.",
       "## Environmental impact",
-      "Heat pumps generally produce fewer greenhouse gas emissions because they use energy much more efficiently. How much lower depends on what you're replacing, where your electricity comes from, and how much energy your home uses. As the grid gets cleaner — the current trend — the same heat pump's emissions decline over time.",
-      "Some people prioritize climate, others indoor air, others cost. All of those priorities are reasonable — the right decision depends on which benefits matter most to you.",
+      "Heat pumps generally produce fewer greenhouse gas emissions because they use energy much more efficiently. How much lower depends on what you're replacing, where your electricity comes from, and how much energy your home uses. As the grid gets cleaner - the current trend - the same heat pump's emissions decline over time.",
+      "Some people prioritize climate, others indoor air, others cost. All of those priorities are reasonable - the right decision depends on which benefits matter most to you.",
     ],
     links: [
       { label: "Is installation complicated?", target: "4F" },
@@ -436,19 +436,19 @@ export const pages: Record<string, Page> = {
     title: "Is installation complicated? Will I need a bigger electrical panel?",
     status: "drafted",
     body: [
-      "Usually not — but sometimes. Installing a heat pump is similar in many ways to installing a central air conditioner. For homes that already have ductwork, much of the infrastructure may already be in place.",
+      "Usually not - but sometimes. Installing a heat pump is similar in many ways to installing a central air conditioner. For homes that already have ductwork, much of the infrastructure may already be in place.",
       "## Will I need an electrical panel upgrade?",
       "Some homes need upgrades, especially if the existing service is older or near capacity; many don't require changes at all. Homes switching from gas heating are more likely to need additional capacity than homes already using electric heat. Knowing this before comparing quotes matters, because electrical work raises upfront costs.",
       "## What about ductwork?",
       "Many homes can use existing ductwork, but some older duct systems were designed for different airflow. If modifications are recommended, ask the contractor to explain why.",
       "## Does installation quality matter?",
-      "Very much. Ask how contractors determine system size and whether they perform a Manual J calculation. Recommendations differ because contractors, homes, equipment, and priorities differ — if recommendations vary substantially, ask each contractor to explain their reasoning.",
+      "Very much. Ask how contractors determine system size and whether they perform a Manual J calculation. Recommendations differ because contractors, homes, equipment, and priorities differ - if recommendations vary substantially, ask each contractor to explain their reasoning.",
       "For many homes, installation is straightforward. The key is a contractor who explains why the recommended system fits your home.",
     ],
     links: [
       { label: "I'm ready to compare costs", target: CALC },
       { label: "Find a qualified contractor", target: "FIND_CONTRACTORS" },
-      { label: "I've heard mixed things — what else is true?", target: "4A" },
+      { label: "I've heard mixed things - what else is true?", target: "4A" },
     ],
   },
 
@@ -459,7 +459,7 @@ export const pages: Record<string, Page> = {
     title: "I want to reduce my home's environmental impact",
     status: "drafted",
     body: [
-      "For many households, heating and cooling account for a large share of home energy use — and one of the largest contributors to a home's greenhouse gas emissions. If reducing your environmental impact is a priority, replacing your heating system can be one of the most meaningful decisions you make.",
+      "For many households, heating and cooling account for a large share of home energy use - and one of the largest contributors to a home's greenhouse gas emissions. If reducing your environmental impact is a priority, replacing your heating system can be one of the most meaningful decisions you make.",
       "Heat pumps can heat and cool homes using much less energy than many conventional systems, resulting in significant emissions reductions. But the benefits are not the same for every home. They depend on:",
       "- What you're replacing: propane, fuel oil, or electric resistance replacements reduce emissions more than replacing a high-efficiency gas furnace",
       "- Where you live: impact depends partly on how electricity is generated in your region",
@@ -479,12 +479,12 @@ export const pages: Record<string, Page> = {
     title: "How much can a heat pump reduce greenhouse gas emissions?",
     status: "drafted",
     body: [
-      "The answer depends primarily on what heating system you're replacing. Replacing electric resistance, propane, or fuel oil produces larger reductions than replacing an efficient natural gas furnace — though replacing gas often still reduces emissions, just by a smaller amount.",
+      "The answer depends primarily on what heating system you're replacing. Replacing electric resistance, propane, or fuel oil produces larger reductions than replacing an efficient natural gas furnace - though replacing gas often still reduces emissions, just by a smaller amount.",
       "## Where you live matters",
       "Heat pumps use electricity, so their impact depends partly on how electricity is generated where you live. Lower-carbon grids mean larger reductions; fossil-heavy grids mean smaller ones.",
       "## Looking ahead",
-      "If electricity becomes cleaner — the current trend — the same heat pump produces fewer emissions year after year without changing the equipment. But a heat pump cannot overcome a poorly insulated home: improving insulation and air sealing lowers emissions regardless of heating system.",
-      "Different studies report different percentages because they examine different climates, grids, and systems — often they're answering slightly different questions rather than disagreeing.",
+      "If electricity becomes cleaner - the current trend - the same heat pump produces fewer emissions year after year without changing the equipment. But a heat pump cannot overcome a poorly insulated home: improving insulation and air sealing lowers emissions regardless of heating system.",
+      "Different studies report different percentages because they examine different climates, grids, and systems - often they're answering slightly different questions rather than disagreeing.",
       "For many homes, replacing conventional heating with a heat pump is one of the larger opportunities to reduce household emissions.",
     ],
     links: [
@@ -499,13 +499,13 @@ export const pages: Record<string, Page> = {
     title: "What are the lifecycle emissions of a heat pump?",
     status: "drafted",
     body: [
-      "Electricity use only tells part of the story. Researchers examine the environmental impacts of the entire life of the equipment — from manufacturing through disposal.",
+      "Electricity use only tells part of the story. Researchers examine the environmental impacts of the entire life of the equipment - from manufacturing through disposal.",
       "## Manufacturing",
       "Heat pumps use steel, aluminum, copper, plastics, electronics, and refrigerants, all with emissions and impacts that occur before installation. Every heating system has manufacturing impacts; the question is comparison, not existence.",
       "## Operating the system",
       "For most homes, operation over many years is the largest share of lifetime impact. Because heat pumps move heat instead of burning fuel, they use less energy and generate fewer operating emissions than conventional systems.",
       "## Refrigerants",
-      "If refrigerant leaks, it contributes to greenhouse gas emissions. Modern equipment minimizes leaks, and manufacturers are introducing lower-global-warming-potential refrigerants — true of conventional cooling systems as well. Proper installation, maintenance, and refrigerant recovery at end of life further reduce these impacts.",
+      "If refrigerant leaks, it contributes to greenhouse gas emissions. Modern equipment minimizes leaks, and manufacturers are introducing lower-global-warming-potential refrigerants - true of conventional cooling systems as well. Proper installation, maintenance, and refrigerant recovery at end of life further reduce these impacts.",
       "## End of life",
       "Many components can be recycled, and recovering refrigerants before disposal is especially important.",
       "Current research generally finds that, for most homes, reductions in operating emissions outweigh the impacts of manufacturing and refrigerants.",
@@ -524,12 +524,12 @@ export const pages: Record<string, Page> = {
     body: [
       "Greenhouse gas emissions get the most attention, but climate is only one part of the picture. Heat pumps also affect indoor air quality, home safety, outdoor air pollution, and dependence on fossil fuels.",
       "## Cleaner indoor air",
-      "Heat pumps eliminate indoor combustion from space heating, avoiding pollutants like carbon monoxide and nitrogen dioxide. Indoor air quality also depends on ventilation, filtration, and humidity control — a heat pump is one part of a healthy indoor environment.",
+      "Heat pumps eliminate indoor combustion from space heating, avoiding pollutants like carbon monoxide and nitrogen dioxide. Indoor air quality also depends on ventilation, filtration, and humidity control - a heat pump is one part of a healthy indoor environment.",
       "## Cleaner outdoor air",
       "Burning fossil fuels contributes to outdoor air pollution linked to respiratory problems. Replacing on-site combustion with efficient electric heating reduces residential heating emissions, with the overall benefit depending partly on your region's electricity mix.",
       "## Reduced dependence on fossil fuels",
       "A heat pump provides space heating with electricity instead of on-site combustion. Even where the grid uses fossil fuels, a heat pump reduces demand on them by using less energy than alternative systems.",
-      "Different homeowners value different outcomes — climate, indoor air, energy independence. Those priorities can all lead to the same technology, for different reasons.",
+      "Different homeowners value different outcomes - climate, indoor air, energy independence. Those priorities can all lead to the same technology, for different reasons.",
     ],
     links: [
       { label: "Is a heat pump the best environmental investment for my home?", target: "5E" },
@@ -544,12 +544,12 @@ export const pages: Record<string, Page> = {
     body: [
       "For many homes, a heat pump is one of the most effective ways to reduce emissions from heating and cooling. But it is not always the first improvement to consider.",
       "## Start with the home itself",
-      "The cleanest energy is the energy you never need to use. Air sealing, insulation, and reducing drafts lower how much heating and cooling your home requires — improving comfort at the same time, regardless of heating system. A home that needs less heat may even allow a smaller, less expensive heat pump.",
+      "The cleanest energy is the energy you never need to use. Air sealing, insulation, and reducing drafts lower how much heating and cooling your home requires - improving comfort at the same time, regardless of heating system. A home that needs less heat may even allow a smaller, less expensive heat pump.",
       "## Think about your home as a system",
       "Many homeowners improve over time rather than all at once: insulation and air sealing, a heat pump, a heat pump water heater, rooftop solar, efficient appliances. These improvements complement one another.",
       "## Timing matters",
       "Replacing equipment before the end of its useful life is not always the best environmental or financial decision. Many homeowners install a heat pump when the existing furnace or AC is already due for replacement.",
-      "A heat pump is often an excellent environmental investment — most effective as part of an overall strategy for your home's energy performance.",
+      "A heat pump is often an excellent environmental investment - most effective as part of an overall strategy for your home's energy performance.",
     ],
     links: [
       { label: "How do heat pumps fit into an all-electric home?", target: "5F" },
@@ -564,10 +564,10 @@ export const pages: Record<string, Page> = {
     body: [
       "Home electrification means replacing equipment that burns fuel on-site with efficient electric alternatives: heat pumps, heat pump water heaters, induction cooktops, electric vehicles, electric dryers.",
       "## Do I need to electrify everything at once?",
-      "No. Many homeowners install a heat pump while continuing to use gas for cooking or water heating, or replace equipment gradually as it wears out. There is no single correct sequence — a gradual approach spreads costs over time while reducing waste.",
+      "No. Many homeowners install a heat pump while continuing to use gas for cooking or water heating, or replace equipment gradually as it wears out. There is no single correct sequence - a gradual approach spreads costs over time while reducing waste.",
       "## What about rooftop solar and battery storage?",
       "Heat pumps and solar work well together because both use electricity, but solar is not required for a heat pump to provide benefits. Battery storage helps capture solar generation, and where the grid is fossil-heavy, it can further reduce grid-tied emissions.",
-      "A heat pump can be one step toward an all-electric home — or simply an efficient replacement for aging equipment. Electrification and energy efficiency work best together.",
+      "A heat pump can be one step toward an all-electric home - or simply an efficient replacement for aging equipment. Electrification and energy efficiency work best together.",
     ],
     links: [
       { label: "Will a heat pump save me money?", target: "1A" },
@@ -579,11 +579,11 @@ export const pages: Record<string, Page> = {
 
   "6A": {
     code: "6A",
-    title: "I'm new to heat pumps — start with the basics",
+    title: "I'm new to heat pumps - start with the basics",
     status: "drafted",
     body: [
       "A heat pump is an air conditioner and furnace in one. It looks just like an air conditioner that sits outside a building and is just as simple to install.",
-      "It doesn't create heat by burning fuel — it moves heat that already exists in the air, both indoors and outdoors. That's why it uses far less energy than a gas furnace or electric resistance heater.",
+      "It doesn't create heat by burning fuel - it moves heat that already exists in the air, both indoors and outdoors. That's why it uses far less energy than a gas furnace or electric resistance heater.",
     ],
     links: [
       { label: "What's in it for me?", target: "2C" },
@@ -600,7 +600,7 @@ export const pages: Record<string, Page> = {
     title: "I'm an HVAC installer or contractor",
     status: "stub",
     body: [
-      "Installer-facing content — spec resources, sizing best practices, and materials you can share with customers — is in development for a later phase.",
+      "Installer-facing content - spec resources, sizing best practices, and materials you can share with customers - is in development for a later phase.",
       "In the meantime, every customer-facing page in this tool is written to be shown directly to homeowners during a conversation. The contractor questions page reflects what informed customers will ask.",
     ],
     links: [
@@ -640,16 +640,16 @@ export const pages: Record<string, Page> = {
   },
 };
 
-// ── Landing page (0A) — per storyboard, "How do heat pumps
+// ── Landing page (0A) - per storyboard, "How do heat pumps
 //    work?" is the first button ──────────────────────────────
 
 export const landingLinks: PageLink[] = [
   { label: "How do heat pumps work?", target: "2A" },
   { label: "Will a heat pump save me money?", target: "1A" },
-  { label: "My system is failing — I need a replacement now", target: "3A" },
+  { label: "My system is failing - I need a replacement now", target: "3A" },
   { label: "I've heard mixed things. What's actually true?", target: "4A" },
   { label: "I want to reduce my carbon footprint", target: "5A" },
-  { label: "I'm new to heat pumps — start with the basics", target: "6A" },
+  { label: "I'm new to heat pumps - start with the basics", target: "6A" },
   { label: "I'm an HVAC installer/contractor", target: "7A" },
 ];
 
@@ -662,7 +662,7 @@ export const exploreLinks: PageLink[] = [
   { label: "I'd like to understand how a heat pump works", target: "2A" },
   { label: "Will a heat pump work in cold weather?", target: "2E" },
   { label: "What are the downsides to getting a heat pump?", target: "2D" },
-  { label: "I've heard heat pumps don't work that well — why?", target: "4C" },
+  { label: "I've heard heat pumps don't work that well - why?", target: "4C" },
   { label: "How is a heat pump more energy efficient?", target: "2B" },
   { label: "Are heat pumps good for people's health?", target: "4E" },
   { label: "Are heat pumps good for the planet?", target: "5B" },
@@ -694,4 +694,35 @@ export const persistentNav = [
 
 export function getPage(code: string): Page | undefined {
   return pages[code];
+}
+
+
+// ── Threads (for "where am I" progress hints) ───────────────
+
+export const threads: Record<string, { name: string; order: string[] }> = {
+  "1": { name: "Money path", order: ["1A", "1B", "1C", "1D", "1E"] },
+  "2": { name: "How it works", order: ["2A", "2B", "2C", "2D", "2E"] },
+  "3": { name: "Replacement path", order: ["3A", "3B", "3C", "3D"] },
+  "4": { name: "Sorting fact from fiction", order: ["4A", "4B", "4C", "4D", "4E", "4F"] },
+  "5": { name: "Environment path", order: ["5A", "5B", "5C", "5D", "5E", "5F"] },
+};
+
+export function threadInfo(code: string): { name: string; pos: number; total: number } | null {
+  const t = threads[code[0]];
+  if (!t) return null;
+  const pos = t.order.indexOf(code);
+  if (pos < 0) return null;
+  return { name: t.name, pos: pos + 1, total: t.order.length };
+}
+
+// ── Search across all pages ─────────────────────────────────
+
+export function searchPages(query: string): Page[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  return Object.values(pages).filter(
+    (p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.body.some((line) => line.toLowerCase().includes(q))
+  );
 }

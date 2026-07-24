@@ -423,3 +423,121 @@ h1, h2, h3 {
 }
 .body-list { margin: 0 0 14px 20px; }
 .body-list li { font-size: 15px; margin-bottom: 6px; color: var(--ink); }
+
+/* ── Journey rail (where am I?) ── */
+.layout { display: block; }
+@media (min-width: 1000px) {
+  .shell { max-width: 1000px; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 32px;
+    align-items: start;
+  }
+}
+.journey-rail {
+  border-left: 2px solid var(--line);
+  padding-left: 16px;
+  position: sticky;
+  top: 24px;
+}
+.journey-heading {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.journey-step {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 5px 0;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.journey-step:hover { color: var(--pine-deep); }
+.journey-step.here { color: var(--pine-deep); font-weight: 600; }
+.journey-step.start { color: var(--ink-faint); }
+.journey-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  flex-shrink: 0;
+  position: relative;
+  top: -1px;
+}
+.journey-step.here .journey-dot { background: var(--warm); }
+.journey-step:not(.here):not(.start) .journey-dot { background: var(--pine); opacity: 0.45; }
+.journey-you {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--warm);
+  margin-left: 2px;
+}
+
+/* Mobile: horizontal trail above content */
+@media (max-width: 999px) {
+  .journey-rail {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding: 14px 0 0;
+    margin-top: 28px;
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    align-items: center;
+  }
+  .journey-heading { width: 100%; margin-bottom: 6px; }
+  .journey-step { width: auto; padding: 2px 0; }
+  .journey-you { display: inline; margin-left: 6px; }
+}
+
+/* ── Thread progress hint ── */
+.thread-hint {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--warm);
+  margin-bottom: 10px;
+}
+
+/* ── Search ── */
+.menu-search { grid-column: 1 / -1; }
+.search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+.search-input:focus { outline: 2px solid var(--pine); outline-offset: 1px; border-color: var(--pine); }
+.search-results { margin-top: 8px; }
+.search-empty { font-size: 13px; color: var(--ink-faint); padding: 4px 0; }
+
+/* ── Print button ── */
+.print-row { margin-top: 18px; }
+
+/* ── Print stylesheet: only the page content prints ── */
+@media print {
+  .topbar, .menu-panel, .journey-rail, .related-block,
+  .nav-row, .footer-note, .thread-hint, .print-row { display: none !important; }
+  .layout { display: block !important; }
+  .shell { max-width: 100%; padding: 0; }
+  .module-card { border: none; padding: 0; }
+  body { background: #fff; }
+}
