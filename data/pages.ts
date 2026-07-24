@@ -726,3 +726,12 @@ export function searchPages(query: string): Page[] {
       p.body.some((line) => line.toLowerCase().includes(q))
   );
 }
+
+
+// ── Reading time ─────────────────────────────────────────────
+
+export function readingTime(page: Page): string {
+  const words = page.body.join(" ").split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.round(words / 200));
+  return `~${minutes} min read`;
+}

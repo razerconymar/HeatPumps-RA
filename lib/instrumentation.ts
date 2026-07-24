@@ -24,6 +24,12 @@ export interface ModuleVisit {
   exitedAt: number | null;
 }
 
+export interface StubFeedback {
+  pageCode: string;
+  text: string;
+  submittedAt: number;
+}
+
 export interface SessionLog {
   sessionToken: string;
   startedAt: number;
@@ -31,6 +37,7 @@ export interface SessionLog {
   firstModule: string | null;
   path: ModuleVisit[];
   clarity: "yes" | "somewhat" | "no" | null;
+  stubFeedback: StubFeedback[];
 }
 
 const STORAGE_KEY = "hpdst_sessions";
@@ -47,7 +54,18 @@ export function createSession(): SessionLog {
     firstModule: null,
     path: [],
     clarity: null,
+    stubFeedback: [],
   };
+}
+
+export function logStubFeedback(
+  session: SessionLog,
+  pageCode: string,
+  text: string
+): void {
+  if (!text.trim()) return;
+  session.stubFeedback.push({ pageCode, text: text.trim(), submittedAt: Date.now() });
+  persist(session);
 }
 
 export function logPersona(session: SessionLog, personaId: string): void {

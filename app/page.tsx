@@ -8,17 +8,21 @@ import {
   persistentNav,
   threadInfo,
   searchPages,
+  readingTime,
   PageLink,
   CALC,
   LANDING,
   EXPLORE,
 } from "@/data/pages";
 import Calculator from "@/components/Calculator";
+import HeatPumpDiagram from "@/components/HeatPumpDiagram";
+import { splitWithGlossary, definitionFor } from "@/data/glossary";
 import {
   createSession,
   logPersona,
   logModuleEnter,
   logClarity,
+  logStubFeedback,
   exportSessions,
   SessionLog,
 } from "@/lib/instrumentation";
@@ -179,7 +183,7 @@ export default function Home() {
           {view.name === "explore" && <Explore onNavigate={navigate} />}
 
           {view.name === "page" && (
-            <PageView code={view.code} onNavigate={navigate} />
+            <PageView code={view.code} onNavigate={navigate} session={session} />
           )}
 
           {view.name === "calc" && (
@@ -281,9 +285,11 @@ function Explore({ onNavigate }: { onNavigate: (t: string) => void }) {
 function PageView({
   code,
   onNavigate,
+  session,
 }: {
   code: string;
   onNavigate: (t: string) => void;
+  session: SessionLog;
 }) {
   const page = getPage(code);
   if (!page) return null;
@@ -291,21 +297,22 @@ function PageView({
 
   return (
     <section>
-      {thread && (
-        <div className="thread-hint">
-          {thread.name} &middot; page {thread.pos} of {thread.total}
-        </div>
-      )}
+      <div className="page-meta-row">
+        {thread && (
+          <div className="thread-hint">
+            {thread.name} &middot; page {thread.pos} of {thread.total}
+          </div>
+        )}
+        <div className="reading-time">{readingTime(page)}</div>
+      </div>
       <article className="module-card printable">
         <h2 className="module-title">{page.title}</h2>
         <div className="module-body">
-          {renderBody(page.body)}
+          <GlossaryBody body={page.body} />
         </div>
+        {code === "2A" && <HeatPumpDiagram />}
         {page.status === "stub" && (
-          <div className="source-tag">
-            <span className="source-pill placeholder">In development</span>
-            <span>This page&rsquo;s full content is being drafted.</span>
-          </div>
+          <StubFeedbackForm pageCode={code} session={session} />
         )}
         {code === "3C" && (
           <div className="print-row">
@@ -337,7 +344,37 @@ function PageView({
   );
 }
 
-function renderBody(body: string[]) {
+function GlossaryLine({ text }: { text: string }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const parts = splitWithGlossary(text);
+  return (
+    <>
+      {parts.map((p, i) => {
+        if (p.type === "text") return <span key={i}>{p.value}</span>;
+        const def = definitionFor(p.value);
+        if (!def) return <span key={i}>{p.value}</span>;
+        return (
+          <span key={i} className="term-wrap">
+            <button
+              className="term"
+              onClick={() => setOpen(open === i ? null : i)}
+              aria-expanded={open === i}
+            >
+              {p.value}
+            </button>
+            {open === i && (
+              <span className="term-tip" role="tooltip">
+                {def}
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function GlossaryBody({ body }: { body: string[] }) {
   const out: JSX.Element[] = [];
   let listBuffer: string[] = [];
   let key = 0;
@@ -347,7 +384,9 @@ function renderBody(body: string[]) {
       out.push(
         <ul key={key++} className="body-list">
           {listBuffer.map((item, i) => (
-            <li key={i}>{item}</li>
+            <li key={i}>
+              <GlossaryLine text={item} />
+            </li>
           ))}
         </ul>
       );
@@ -367,11 +406,61 @@ function renderBody(body: string[]) {
       );
     } else {
       flushList();
-      out.push(<p key={key++}>{line}</p>);
+      out.push(
+        <p key={key++}>
+          <GlossaryLine text={line} />
+        </p>
+      );
     }
   }
   flushList();
-  return out;
+  return <>{out}</>;
+}
+
+// ── Stub page feedback capture ──────────────────────────────
+
+function StubFeedbackForm({
+  pageCode,
+  session,
+}: {
+  pageCode: string;
+  session: SessionLog;
+}) {
+  const [text, setText] = useState("");
+  const [sent, setSent] = useState(false);
+
+  function submit() {
+    if (!text.trim()) return;
+    logStubFeedback(session, pageCode, text);
+    setSent(true);
+  }
+
+  return (
+    <div className="source-tag stub-feedback">
+      <span className="source-pill placeholder">In development</span>
+      <span>This page&rsquo;s full content is being drafted.</span>
+      {!sent ? (
+        <div className="stub-form">
+          <label className="stub-label" htmlFor={`stub-${pageCode}`}>
+            What would you want to see here?
+          </label>
+          <textarea
+            id={`stub-${pageCode}`}
+            className="stub-textarea"
+            rows={2}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Tell us what would help..."
+          />
+          <button className="btn btn-primary btn-small" onClick={submit}>
+            Send feedback
+          </button>
+        </div>
+      ) : (
+        <div className="stub-thanks">Thanks, that&rsquo;s recorded.</div>
+      )}
+    </div>
+  );
 }
 
 // ── Clarity check ───────────────────────────────────────────

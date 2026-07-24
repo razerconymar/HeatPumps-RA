@@ -194,6 +194,12 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
           </div>
         </div>
 
+        {/* ── chart ── */}
+        <div className="chart-block">
+          <div className="chart-title">Monthly energy cost, side by side</div>
+          <CostChart baseline={results.baseline} heatPumps={results.heatPumps} />
+        </div>
+
         {/* ── results ── */}
         <div className="result-block">
           <div className="result-baseline">
@@ -265,5 +271,39 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
         </button>
       </div>
     </section>
+  );
+}
+
+
+// ── Simple horizontal bar chart: monthly cost comparison ──
+
+function CostChart({
+  baseline,
+  heatPumps,
+}: {
+  baseline: { label: string; monthlyCost: number };
+  heatPumps: { id: string; label: string; monthlyCost: number }[];
+}) {
+  const all = [
+    { label: baseline.label, cost: baseline.monthlyCost, isBaseline: true },
+    ...heatPumps.map((h) => ({ label: h.label, cost: h.monthlyCost, isBaseline: false })),
+  ];
+  const max = Math.max(...all.map((a) => a.cost), 1);
+
+  return (
+    <div className="chart-bars">
+      {all.map((a) => (
+        <div key={a.label} className="chart-row">
+          <div className="chart-label">{a.label}</div>
+          <div className="chart-track">
+            <div
+              className={"chart-fill" + (a.isBaseline ? " is-baseline" : "")}
+              style={{ width: `${(a.cost / max) * 100}%` }}
+            />
+          </div>
+          <div className="chart-value">${a.cost.toFixed(0)}/mo</div>
+        </div>
+      ))}
+    </div>
   );
 }
