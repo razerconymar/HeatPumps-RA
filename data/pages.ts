@@ -736,6 +736,8 @@ export const threads: Record<string, { name: string; order: string[]; color: str
   "3": { name: "Replacement path", order: ["3A", "3B", "3C", "3D"], color: "#b5342f" },
   "4": { name: "Sorting fact from fiction", order: ["4A", "4B", "4C", "4D", "4E", "4F"], color: "#6a4c93" },
   "5": { name: "Environment path", order: ["5A", "5B", "5C", "5D", "5E", "5F"], color: "#1e5b45" },
+  "6": { name: "Beginner's guide", order: ["6A"], color: "#7a6a3f" },
+  "7": { name: "For installers", order: ["7A"], color: "#4a5568" },
 };
 
 export function threadInfo(

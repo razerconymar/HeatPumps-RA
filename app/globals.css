@@ -98,12 +98,16 @@ h1, h2, h3 {
 }
 .persona-card:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
 .persona-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
   font-weight: 600;
   font-size: calc(17px * var(--text-scale, 1));
   color: var(--pine-deep);
   margin-bottom: 6px;
 }
+.persona-label svg { flex-shrink: 0; opacity: 0.8; }
 .persona-desc { font-size: calc(14.5px * var(--text-scale, 1)); color: var(--ink-soft); }
 
 /* ── Journey ── */
@@ -563,6 +567,9 @@ h1, h2, h3 {
 
 /* ── Thread progress hint ── */
 .thread-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: calc(12.5px * var(--text-scale, 1));
   font-weight: 600;
   text-transform: uppercase;
@@ -570,6 +577,7 @@ h1, h2, h3 {
   color: var(--warm-text);
   margin-bottom: 10px;
 }
+.thread-hint svg { flex-shrink: 0; }
 
 /* ── Search ── */
 .menu-search { grid-column: 1 / -1; }

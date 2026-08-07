@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function HeatPumpDiagram() {
   const [mode, setMode] = useState<"winter" | "summer">("winter");
   const isWinter = mode === "winter";
-  const flowColor = isWinter ? "var(--warm)" : "var(--cool)";
+  const c = isWinter ? "var(--warm)" : "var(--cool)";
 
   return (
     <div className="diagram-block">
@@ -25,90 +25,89 @@ export default function HeatPumpDiagram() {
       </div>
 
       <svg
-        viewBox="0 0 640 300"
+        viewBox="0 0 620 340"
         className="diagram-svg"
         role="img"
         aria-label={
           isWinter
-            ? "Diagram showing a heat pump pulling heat from outdoor air and moving it inside the home"
-            : "Diagram showing a heat pump pulling heat from inside the home and moving it outside"
+            ? "Diagram: a heat pump pulls heat from outdoor air and moves it inside the home."
+            : "Diagram: a heat pump pulls heat from inside the home and moves it outdoors."
         }
       >
-        {/* ground */}
-        <line x1="10" y1="255" x2="630" y2="255" stroke="var(--line)" strokeWidth="2" />
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 Z" fill={c} />
+          </marker>
+        </defs>
 
-        {/* house */}
-        <g>
-          <polygon
-            points="60,255 60,150 190,90 320,150 320,255"
-            fill="var(--card)"
-            stroke="var(--line)"
-            strokeWidth="2"
-          />
-          <text x="190" y="238" textAnchor="middle" fontSize="13" fill="var(--ink-faint)">
-            Inside your home
-          </text>
+        <text x="310" y="26" textAnchor="middle" fontSize="14" fontWeight="600" fill="var(--ink)">
+          {isWinter
+            ? "Winter: heat moves from outside to inside"
+            : "Summer: heat moves from inside to outside"}
+        </text>
 
-          {/* indoor unit */}
-          <rect x="130" y="175" width="70" height="46" rx="6" fill="var(--paper)" stroke={flowColor} strokeWidth="2" />
-          <text x="165" y="203" textAnchor="middle" fontSize="11" fill="var(--ink)">Indoor unit</text>
-        </g>
+        <line x1="20" y1="286" x2="600" y2="286" stroke="var(--line)" strokeWidth="2" />
 
-        {/* outdoor unit */}
-        <g>
-          <rect x="470" y="190" width="90" height="65" rx="6" fill="var(--card)" stroke={flowColor} strokeWidth="2" />
-          <circle cx="515" cy="222" r="18" fill="none" stroke={flowColor} strokeWidth="1.5" opacity="0.6" />
-          <text x="515" y="270" textAnchor="middle" fontSize="12" fill="var(--ink-faint)">
-            Outdoor unit
-          </text>
-        </g>
+        <polygon
+          points="55,286 55,170 165,105 275,170 275,286"
+          fill="var(--card)"
+          stroke="var(--line)"
+          strokeWidth="2"
+        />
+        <text x="165" y="308" textAnchor="middle" fontSize="12.5" fill="var(--ink-faint)">
+          Inside your home
+        </text>
 
-        {/* refrigerant line */}
+        <rect x="120" y="212" width="90" height="46" rx="6" fill="var(--paper)" stroke={c} strokeWidth="2" />
+        <text x="165" y="240" textAnchor="middle" fontSize="12" fill="var(--ink)">
+          Indoor unit
+        </text>
+
+        <rect x="430" y="212" width="90" height="74" rx="6" fill="var(--card)" stroke={c} strokeWidth="2" />
+        <circle cx="475" cy="249" r="19" fill="none" stroke={c} strokeWidth="1.5" opacity="0.55" />
+        <text x="475" y="308" textAnchor="middle" fontSize="12.5" fill="var(--ink-faint)">
+          Outdoor unit
+        </text>
+
         <path
-          d="M 200 198 L 470 222"
+          d="M 210 235 L 430 240"
           fill="none"
-          stroke={flowColor}
-          strokeWidth="3"
-          strokeDasharray="8 6"
+          stroke={c}
+          strokeWidth="2.5"
+          strokeDasharray="7 6"
           className="flow-line"
+          opacity="0.75"
         />
 
-        {/* arrows: direction depends on mode */}
         {isWinter ? (
           <>
-            <path d="M600 222 L560 222" stroke={flowColor} strokeWidth="2.5" markerEnd="url(#arrowHead)" />
-            <path d="M330 198 L205 198" stroke={flowColor} strokeWidth="2.5" markerEnd="url(#arrowHead)" />
-            <text x="600" y="200" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
+            <path d="M 585 180 L 500 180" stroke={c} strokeWidth="2.5" markerEnd="url(#ah)" fill="none" />
+            <text x="585" y="162" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
               Heat pulled from outdoor air
             </text>
-            <text x="330" y="180" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
-              Moved indoors to warm the house
+            <path d="M 400 180 L 250 180" stroke={c} strokeWidth="2.5" markerEnd="url(#ah)" fill="none" />
+            <text x="400" y="162" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
+              Released indoors as warmth
             </text>
           </>
         ) : (
           <>
-            <path d="M205 198 L330 198" stroke={flowColor} strokeWidth="2.5" markerEnd="url(#arrowHead)" />
-            <path d="M560 222 L600 222" stroke={flowColor} strokeWidth="2.5" markerEnd="url(#arrowHead)" />
-            <text x="205" y="180" textAnchor="start" fontSize="12" fill="var(--ink-soft)">
+            <path d="M 250 180 L 400 180" stroke={c} strokeWidth="2.5" markerEnd="url(#ah)" fill="none" />
+            <text x="250" y="162" textAnchor="start" fontSize="12" fill="var(--ink-soft)">
               Heat pulled from indoor air
             </text>
-            <text x="600" y="200" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
-              Moved outdoors to cool the house
+            <path d="M 500 180 L 585 180" stroke={c} strokeWidth="2.5" markerEnd="url(#ah)" fill="none" />
+            <text x="585" y="162" textAnchor="end" fontSize="12" fill="var(--ink-soft)">
+              Released outdoors
             </text>
           </>
         )}
-
-        <defs>
-          <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-            <path d="M0,0 L8,4 L0,8 Z" fill={flowColor} />
-          </marker>
-        </defs>
       </svg>
 
       <p className="diagram-caption">
         {isWinter
-          ? "Even cold outdoor air holds usable heat. The heat pump captures it outside and releases it indoors."
-          : "In summer, the same system runs in reverse: it captures heat from inside your home and releases it outdoors, just like a standard air conditioner."}
+          ? "Even cold outdoor air holds usable heat. The heat pump captures it outside and releases it indoors, which takes far less energy than burning fuel to create heat."
+          : "In summer the same system runs in reverse, pulling heat out of your home and releasing it outdoors, exactly like a standard air conditioner."}
       </p>
     </div>
   );
