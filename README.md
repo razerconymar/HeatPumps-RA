@@ -35,16 +35,41 @@ All content lives in `data/content.ts`. Each module has:
 
 Add a module to a persona's journey by adding its id to that persona's `flow` array. No other code changes needed.
 
-## Focus group / survey entry point
+## Research sessions (built-in survey)
 
-There are two ways into this app:
+**Study design: pre-survey → free exploration → post-survey.** Everything runs inside this app. No Qualtrics or external survey tool is needed, and no configuration is required.
 
-- **`/`** — the normal DST landing page, for organic visitors
-- **`/survey`** — a separate entry page for focus group participants, with a short intro and a link out to your Qualtrics survey
+Two entry points:
 
-To connect them: build your survey in Qualtrics, then in **Survey Flow → End of Survey element → Redirect to a URL**, set the redirect to your deployed site's root with a tag appended, e.g. `https://your-site.vercel.app/?ref=qualtrics-focus-group`. When someone lands back on `/` with that `ref` param, the app tags their anonymous session with that source (visible in the exported session data) and shows a short "thanks for finishing the survey" line before the normal landing page.
+- **`/`** — normal landing page. Casual visitors never see surveys.
+- **`/survey`** — research session entry. Explains the three parts, then starts the study.
 
-Update `QUALTRICS_SURVEY_URL` in `app/survey/page.tsx` with your real survey link once it's built.
+The pre-survey uses the ranking and magnitude questions from the project's focus group handout (energy use, operating cost, and emissions across four heating systems). The post-survey repeats only the comparable knowledge questions, plus short usability items. That before/after pairing is the point: it shows whether the tool measurably changed what people understand, not just whether they liked it.
+
+### Changing the survey questions
+
+The current questions are **placeholders** adapted from the focus group handout. Replace them in `data/survey-questions.ts` — that is the only file to edit, and the survey screens rebuild themselves from whatever is defined there.
+
+Five question types are available (`likert`, `single`, `rank`, `magnitude`, `text`), each of which renders its own input automatically. Full instructions and an example are in the comment block at the top of that file.
+
+One rule matters for the research design: any question you want to compare before vs. after must appear in **both** `preQuestions` and `postQuestions` with the **same `id`**. The CSV export then places them side by side as `pre_<id>` and `post_<id>`.
+
+### Running a session
+
+Open `/survey` on the participant's device and hand it over. Pre answers, every page they visit, time per page, drop-off point, and post answers all record automatically under one anonymous session token.
+
+### Getting the data out
+
+Two buttons in the footer:
+
+- **Export results (CSV)** — one row per participant with pre and post answers side by side, ready for Excel, R, or SPSS with no reshaping
+- **Export raw (JSON)** — full detail including exact navigation sequence and timestamps
+
+Data is stored in the browser's localStorage, so **export before clearing browser data or switching devices.** For in-person sessions on a device you control this is fine; for remote data collection you would need to add a backend endpoint.
+
+### Privacy
+
+No names, emails, or personal information are collected. Each session gets a random token that exists only to link a participant's pre answers, activity, and post answers together.
 
 ## Link order randomization
 

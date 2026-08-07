@@ -30,6 +30,12 @@ export interface StubFeedback {
   submittedAt: number;
 }
 
+export interface SurveyResponse {
+  phase: "pre" | "post";
+  answers: Record<string, unknown>;
+  submittedAt: number;
+}
+
 export interface MicroSurveyResponse {
   threadCode: string;
   question: string;
@@ -47,6 +53,7 @@ export interface SessionLog {
   clarity: "yes" | "somewhat" | "no" | null;
   stubFeedback: StubFeedback[];
   microSurveys: MicroSurveyResponse[];
+  surveys: SurveyResponse[];
 }
 
 const STORAGE_KEY = "hpdst_sessions";
@@ -66,7 +73,17 @@ export function createSession(): SessionLog {
     clarity: null,
     stubFeedback: [],
     microSurveys: [],
+    surveys: [],
   };
+}
+
+export function logSurvey(
+  session: SessionLog,
+  phase: "pre" | "post",
+  answers: Record<string, unknown>
+): void {
+  session.surveys.push({ phase, answers, submittedAt: Date.now() });
+  persist(session);
 }
 
 export function logMicroSurvey(
@@ -86,6 +103,16 @@ export function logStubFeedback(
 ): void {
   if (!text.trim()) return;
   session.stubFeedback.push({ pageCode, text: text.trim(), submittedAt: Date.now() });
+  persist(session);
+}
+
+// Adopt an externally-supplied anonymous token (from the pre-survey
+// redirect) so survey responses and tool activity can be joined later.
+// Sanitized and length-capped since it arrives from a URL parameter.
+export function adoptSessionToken(session: SessionLog, token: string): void {
+  const clean = token.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64);
+  if (!clean) return;
+  session.sessionToken = clean;
   persist(session);
 }
 
@@ -146,6 +173,99 @@ export function exportSessions(): void {
   const a = document.createElement("a");
   a.href = url;
   a.download = "hpdst-sessions.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+// ─────────────────────────────────────────────────────────────
+// CSV export: one row per session, with pre/post answers side by
+// side so the before/after comparison is immediately visible in
+// Excel or R without any reshaping.
+// ─────────────────────────────────────────────────────────────
+
+function flatten(prefix: string, answers: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [qid, val] of Object.entries(answers)) {
+    if (val === null || val === undefined) continue;
+    if (typeof val === "object") {
+      for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+        out[`${prefix}_${qid}_${k}`] = String(v);
+      }
+    } else {
+      out[`${prefix}_${qid}`] = String(val);
+    }
+  }
+  return out;
+}
+
+function csvEscape(s: string): string {
+  if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+export function exportSessionsCsv(): void {
+  if (typeof window === "undefined") return;
+  const raw = window.localStorage.getItem(STORAGE_KEY) ?? "{}";
+  let all: Record<string, SessionLog>;
+  try {
+    all = JSON.parse(raw);
+  } catch {
+    return;
+  }
+
+  const rows: Record<string, string>[] = [];
+  for (const s of Object.values(all)) {
+    const row: Record<string, string> = {
+      session_token: s.sessionToken,
+      started_at: new Date(s.startedAt).toISOString(),
+      source: s.source ?? "",
+      entry_page: s.persona ?? "",
+      first_page: s.firstModule ?? "",
+      pages_visited: String(s.path.length),
+      path: s.path.map((p) => p.moduleId).join(" > "),
+      drop_off_page: s.path.length ? s.path[s.path.length - 1].moduleId : "",
+      total_seconds: String(
+        Math.round(
+          s.path.reduce(
+            (acc, p) => acc + ((p.exitedAt ?? p.enteredAt) - p.enteredAt),
+            0
+          ) / 1000
+        )
+      ),
+      clarity: s.clarity ?? "",
+      completed_pre: s.surveys?.some((x) => x.phase === "pre") ? "yes" : "no",
+      completed_post: s.surveys?.some((x) => x.phase === "post") ? "yes" : "no",
+    };
+
+    for (const sv of s.surveys ?? []) {
+      Object.assign(row, flatten(sv.phase, sv.answers));
+    }
+    for (const m of s.microSurveys ?? []) {
+      row[`micro_${m.threadCode}`] = m.answer;
+    }
+    for (const f of s.stubFeedback ?? []) {
+      row[`feedback_${f.pageCode}`] = f.text;
+    }
+    rows.push(row);
+  }
+
+  // union of all columns, stable order
+  const cols: string[] = [];
+  for (const r of rows) {
+    for (const k of Object.keys(r)) if (!cols.includes(k)) cols.push(k);
+  }
+
+  const lines = [
+    cols.join(","),
+    ...rows.map((r) => cols.map((c) => csvEscape(r[c] ?? "")).join(",")),
+  ];
+
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "hpdst-results.csv";
   a.click();
   URL.revokeObjectURL(url);
 }

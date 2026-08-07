@@ -1,24 +1,16 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Separate entry point for focus group / research participants,
-// distinct from the DST's own landing page (app/page.tsx).
+// Research participant entry point.
 //
-// Flow: participant gets a link to /survey (not "/") -> reads a
-// short intro -> clicks through to the real Qualtrics survey ->
-// Qualtrics' own "End of Survey" redirect setting sends them to
-// this site's root URL with ?ref=qualtrics-focus-group appended
-// -> the main app (app/page.tsx) detects that param, tags the
-// anonymous session with its source, and shows a short "welcome
-// back" line before the normal DST landing page.
+// Study design: pre-survey -> free exploration -> post-survey.
+// Everything runs inside this app, so pre answers, navigation
+// activity, and post answers all land in one record per person
+// and export together. No external survey tool required.
 //
-// SETUP NEEDED IN QUALTRICS (one-time, on your end):
-//   Survey Flow -> End of Survey element -> "Redirect to a URL"
-//   -> paste: https://YOUR-VERCEL-URL.vercel.app/?ref=qualtrics-focus-group
-//   Replace QUALTRICS_SURVEY_URL below with your real survey link.
+// Send participants to  /survey  rather than  /  so they get the
+// study flow. Casual visitors landing on  /  never see surveys.
 // ─────────────────────────────────────────────────────────────
-
-const QUALTRICS_SURVEY_URL = "https://your-org.qualtrics.com/jfe/form/REPLACE_ME";
 
 export default function SurveyEntry() {
   return (
@@ -27,7 +19,7 @@ export default function SurveyEntry() {
         <div className="brand-mark" aria-hidden />
         <div>
           <div className="brand-name">Heat Pump Decision Support</div>
-          <div className="brand-sub">Research participant entry</div>
+          <div className="brand-sub">Research session</div>
         </div>
       </header>
 
@@ -35,22 +27,52 @@ export default function SurveyEntry() {
         <h1 className="hero-title" style={{ marginBottom: 14 }}>
           Thanks for helping with our research
         </h1>
-        <p className="hero-lede" style={{ marginBottom: 24 }}>
-          You&rsquo;re here because you&rsquo;re part of our focus group. Before
-          you explore the tool, we have a short survey, about 5 minutes.
-          Afterward, you&rsquo;ll be brought straight into the tool itself.
+        <p className="hero-lede" style={{ marginBottom: 20 }}>
+          This takes about 20 minutes total, in three parts: a few questions
+          about what you think now, then time to explore the tool however you
+          like, then a few short questions at the end.
         </p>
 
-        <div className="persona-grid">
+        <div className="study-steps">
+          <div className="study-step">
+            <span className="study-step-num">1</span>
+            <div>
+              <div className="study-step-title">A few questions first</div>
+              <div className="study-step-desc">
+                About 5 minutes. There are no right or wrong answers, we just
+                want to know what you think today.
+              </div>
+            </div>
+          </div>
+          <div className="study-step">
+            <span className="study-step-num">2</span>
+            <div>
+              <div className="study-step-title">Explore the tool</div>
+              <div className="study-step-desc">
+                Take as long as you like. Follow whatever interests you.
+              </div>
+            </div>
+          </div>
+          <div className="study-step">
+            <span className="study-step-num">3</span>
+            <div>
+              <div className="study-step-title">A few questions at the end</div>
+              <div className="study-step-desc">
+                About 3 minutes, including some of the same questions again.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="persona-grid" style={{ marginTop: 24 }}>
           <a
             className="persona-card"
-            href={QUALTRICS_SURVEY_URL}
+            href="/?study=1"
             style={{ display: "block", textDecoration: "none" }}
           >
-            <div className="persona-label">Start the survey</div>
+            <div className="persona-label">Start</div>
             <div className="persona-desc">
-              About 5 minutes. You&rsquo;ll come right back here when you&rsquo;re
-              done.
+              Begin with the first set of questions.
             </div>
           </a>
 
@@ -59,20 +81,17 @@ export default function SurveyEntry() {
             href="/"
             style={{ display: "block", textDecoration: "none" }}
           >
-            <div className="persona-label">
-              Just explore the tool, skip the survey
-            </div>
+            <div className="persona-label">Just explore, skip the questions</div>
             <div className="persona-desc">
-              For anyone not part of the research study.
+              For anyone not part of the research session.
             </div>
           </a>
         </div>
 
-        <p className="footer-note" style={{ marginTop: 32, textAlign: "left" }}>
-          Your survey responses go to our research team through Qualtrics
-          directly. Your activity inside the tool afterward is tracked only
-          anonymously, no name or personal information, as explained on the
-          &ldquo;Where does this data go?&rdquo; page once you&rsquo;re inside.
+        <p className="footer-note" style={{ marginTop: 28, textAlign: "left" }}>
+          Your answers are recorded without your name or any personal
+          information. Each session gets a random code so responses from the
+          beginning and end can be compared, and nothing identifies you.
         </p>
       </section>
     </main>

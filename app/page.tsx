@@ -17,6 +17,8 @@ import {
   EXPLORE,
 } from "@/data/pages";
 import Calculator from "@/components/Calculator";
+import Survey, { SurveyAnswers } from "@/components/Survey";
+import { preQuestions, postQuestions } from "@/data/survey-questions";
 import HeatPumpDiagram from "@/components/HeatPumpDiagram";
 import { seededShuffle } from "@/lib/shuffle";
 import {
@@ -44,7 +46,9 @@ import {
   logStubFeedback,
   logMicroSurvey,
   logSource,
+  logSurvey,
   exportSessions,
+  exportSessionsCsv,
   SessionLog,
 } from "@/lib/instrumentation";
 
@@ -53,6 +57,8 @@ type View =
   | { name: "explore" }
   | { name: "page"; code: string }
   | { name: "calc" }
+  | { name: "pre-survey" }
+  | { name: "post-survey" }
   | { name: "data-info" }
   | { name: "clarity" }
   | { name: "done" };
@@ -72,14 +78,21 @@ export default function Home() {
   const [trail, setTrail] = useState<{ code: string; title: string }[]>([]);
   const [seenSurveys, setSeenSurveys] = useState<Set<string>>(new Set());
   const [fromSurvey, setFromSurvey] = useState(false);
+  // "off" = casual visitor, no surveys. "pre" | "tool" | "done" = study mode.
+  const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
+    "off"
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
-    if (ref) {
-      logSource(session, ref);
+    if (params.get("study") === "1") {
+      logSource(session, "research-session");
+      setStudyStage("pre");
       setFromSurvey(true);
-      // clean the URL so refreshing doesn't re-trigger or expose it
+      setView({ name: "pre-survey" });
+    }
+    if (params.toString()) {
+      // clean the URL so a refresh doesn't restart the study
       window.history.replaceState({}, "", window.location.pathname);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +143,12 @@ export default function Home() {
 
   function finish() {
     setMenuOpen(false);
-    setView({ name: "clarity" });
+    setOpenNav(null);
+    if (studyStage === "tool") {
+      setView({ name: "post-survey" });
+    } else {
+      setView({ name: "clarity" });
+    }
   }
 
   function answerClarity(a: "yes" | "somewhat" | "no") {
@@ -140,6 +158,7 @@ export default function Home() {
 
   function reset() {
     sessionRef.current = createSession();
+    setStudyStage("off");
     setMenuOpen(false);
     setTrail([]);
     setView({ name: "landing" });
@@ -289,11 +308,41 @@ export default function Home() {
             <Calculator onDone={() => navigate(EXPLORE)} />
           )}
 
+          {view.name === "pre-survey" && (
+            <Survey
+              title="Before you start"
+              intro="A few quick questions about what you think today. There are no right or wrong answers, and we ask a couple of them again at the end to see what changed."
+              questions={preQuestions}
+              submitLabel="Start exploring"
+              onComplete={(a: SurveyAnswers) => {
+                logSurvey(session, "pre", a);
+                setStudyStage("tool");
+                setView({ name: "landing" });
+              }}
+            />
+          )}
+
+          {view.name === "post-survey" && (
+            <Survey
+              title="Last few questions"
+              intro="Same questions as the beginning, plus a couple about the tool itself. This is the last step."
+              questions={postQuestions}
+              submitLabel="Finish"
+              onComplete={(a: SurveyAnswers) => {
+                logSurvey(session, "post", a);
+                setStudyStage("done");
+                setView({ name: "done" });
+              }}
+            />
+          )}
+
           {view.name === "data-info" && <DataInfo />}
 
           {view.name === "clarity" && <ClarityCheck onAnswer={answerClarity} />}
 
-          {view.name === "done" && <Done onRestart={reset} />}
+          {view.name === "done" && (
+            <Done onRestart={reset} studyMode={studyStage === "done"} />
+          )}
         </div>
 
         {trail.length > 0 &&
@@ -322,7 +371,8 @@ export default function Home() {
         <button onClick={() => setView({ name: "data-info" })}>
           Where does this data go?
         </button>{" "}
-        <button onClick={exportSessions}>Export anonymous session data</button>
+        <button onClick={exportSessionsCsv}>Export results (CSV)</button>{" "}
+        <button onClick={exportSessions}>Export raw (JSON)</button>
       </footer>
     </main>
   );
@@ -664,7 +714,25 @@ function ClarityCheck({
   );
 }
 
-function Done({ onRestart }: { onRestart: () => void }) {
+function Done({
+  onRestart,
+  studyMode,
+}: {
+  onRestart: () => void;
+  studyMode: boolean;
+}) {
+  if (studyMode) {
+    return (
+      <section className="clarity-card">
+        <h2 className="clarity-title">All done, thank you</h2>
+        <p className="clarity-sub">
+          That is everything. Your responses have been recorded. Please let the
+          facilitator know you have finished.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section className="clarity-card">
       <h2 className="clarity-title">Thanks for exploring</h2>
