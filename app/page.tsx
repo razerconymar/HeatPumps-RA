@@ -32,6 +32,8 @@ import {
   MapPin,
   Sparkles,
   ChevronDown,
+  Scale,
+  Accessibility as AccessibilityIcon,
 } from "lucide-react";
 import { richSegments, definitionFor } from "@/data/glossary";
 import {
@@ -63,6 +65,9 @@ export default function Home() {
   const [view, setView] = useState<View>({ name: "landing" });
   const [menuOpen, setMenuOpen] = useState(false);
   const [openNav, setOpenNav] = useState<string | null>(null);
+  const [a11yOpen, setA11yOpen] = useState(false);
+  const [textScale, setTextScale] = useState(1);
+  const [highContrast, setHighContrast] = useState(false);
   const [search, setSearch] = useState("");
   const [trail, setTrail] = useState<{ code: string; title: string }[]>([]);
   const [seenSurveys, setSeenSurveys] = useState<Set<string>>(new Set());
@@ -141,7 +146,10 @@ export default function Home() {
   }
 
   return (
-    <main className="shell">
+    <main
+      className={"shell" + (highContrast ? " high-contrast" : "")}
+      style={{ "--text-scale": textScale } as React.CSSProperties}
+    >
       <header className="topbar">
         <div className="brand" onClick={reset} role="button" tabIndex={0}>
           <div className="brand-mark" aria-hidden />
@@ -199,6 +207,26 @@ export default function Home() {
                 </button>
               ))}
             </div>
+          )}
+        </div>
+
+        <div className="a11y-wrap">
+          <button
+            className={"a11y-btn" + (a11yOpen ? " active" : "")}
+            onClick={() => setA11yOpen((o) => !o)}
+            aria-expanded={a11yOpen}
+            aria-label="Accessibility settings"
+            title="Accessibility settings"
+          >
+            <AccessibilityIcon size={18} />
+          </button>
+          {a11yOpen && (
+            <A11yPanel
+              textScale={textScale}
+              onTextScale={setTextScale}
+              highContrast={highContrast}
+              onHighContrast={setHighContrast}
+            />
           )}
         </div>
 
@@ -332,7 +360,10 @@ function Landing({
               style={c ? { borderLeft: `4px solid ${c}` } : undefined}
               onClick={() => onNavigate(l.target)}
             >
-              <div className="persona-label">{l.label}</div>
+              <div className="persona-label">
+                <NavIcon target={l.target} />
+                {l.label}
+              </div>
             </button>
           );
         })}
@@ -352,15 +383,22 @@ function Explore({ onNavigate }: { onNavigate: (t: string) => void }) {
         usually want to know.
       </p>
       <div className="persona-grid">
-        {exploreLinks.map((l) => (
-          <button
-            key={l.label}
-            className="persona-card"
-            onClick={() => onNavigate(l.target)}
-          >
-            <div className="persona-label">{l.label}</div>
-          </button>
-        ))}
+        {exploreLinks.map((l) => {
+          const c = threadColor(l.target);
+          return (
+            <button
+              key={l.label}
+              className="persona-card"
+              style={c ? { borderLeft: `4px solid ${c}` } : undefined}
+              onClick={() => onNavigate(l.target)}
+            >
+              <div className="persona-label">
+                <NavIcon target={l.target} />
+                {l.label}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -399,6 +437,7 @@ function PageView({
       <div className="page-meta-row">
         {thread && (
           <div className="thread-hint" style={{ color: thread.color }}>
+            <NavIcon target={code} />
             {thread.name} &middot; page {thread.pos} of {thread.total}
           </div>
         )}
@@ -445,7 +484,10 @@ function PageView({
                 style={c ? { borderLeft: `3px solid ${c}` } : undefined}
                 onClick={() => onNavigate(l.target)}
               >
-                {l.label}
+                <span className="next-link-label">
+                  <NavIcon target={l.target} />
+                  {l.label}
+                </span>
                 <span className="next-arrow" aria-hidden>
                   &rarr;
                 </span>
@@ -643,6 +685,63 @@ function Done({ onRestart }: { onRestart: () => void }) {
 
 // ── Menu icon lookup ─────────────────────────────────────────
 
+// ── Accessibility panel ──────────────────────────────────────
+
+function A11yPanel({
+  textScale,
+  onTextScale,
+  highContrast,
+  onHighContrast,
+}: {
+  textScale: number;
+  onTextScale: (n: number) => void;
+  highContrast: boolean;
+  onHighContrast: (b: boolean) => void;
+}) {
+  const sizes: { label: string; value: number }[] = [
+    { label: "A", value: 1 },
+    { label: "A", value: 1.15 },
+    { label: "A", value: 1.3 },
+  ];
+  return (
+    <div className="a11y-panel" role="dialog" aria-label="Accessibility settings">
+      <div className="a11y-row">
+        <span className="a11y-label">Text size</span>
+        <div className="a11y-sizes">
+          {sizes.map((s, i) => (
+            <button
+              key={i}
+              className={"a11y-size-btn" + (textScale === s.value ? " on" : "")}
+              style={{ fontSize: 13 + i * 3 }}
+              onClick={() => onTextScale(s.value)}
+              aria-label={
+                i === 0 ? "Default text size" : i === 1 ? "Larger text" : "Largest text"
+              }
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="a11y-row">
+        <div className="a11y-toggle-row">
+          <span className="a11y-label" style={{ marginBottom: 0 }}>
+            High contrast
+          </span>
+          <button
+            className={"a11y-switch" + (highContrast ? " on" : "")}
+            role="switch"
+            aria-checked={highContrast}
+            onClick={() => onHighContrast(!highContrast)}
+          >
+            <span className="a11y-switch-knob" aria-hidden />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Nav dropdown (hover on desktop, click/tap on touch) ─────
 
 function NavDropdown({
@@ -713,7 +812,7 @@ function NavIcon({ target }: { target: string }) {
   if (t === "1") return <DollarSign size={size} />;
   if (t === "2") return <HelpCircle size={size} />;
   if (t === "3") return <Wrench size={size} />;
-  if (t === "4") return <HelpCircle size={size} />;
+  if (t === "4") return <Scale size={size} />;
   if (t === "5") return <Leaf size={size} />;
   if (t === "6") return <BookOpen size={size} />;
   return <HelpCircle size={size} />;
@@ -737,6 +836,7 @@ function JourneyRail({
       <div className="journey-heading">Your journey</div>
       <button className="journey-step start" onClick={onHome}>
         <span className="journey-dot" aria-hidden />
+        <BookOpen size={13} />
         Start
       </button>
       {trail.map((s) => {
@@ -753,6 +853,7 @@ function JourneyRail({
               aria-hidden
               style={c ? { background: c, opacity: 1 } : undefined}
             />
+            <NavIcon target={s.code} />
             {s.title}
             {s.code === current && <span className="journey-you">you are here</span>}
           </button>
