@@ -357,7 +357,7 @@ function Landing({
             <button
               key={l.target}
               className="persona-card"
-              style={c ? { borderLeft: `4px solid ${c}` } : undefined}
+              style={c ? ({ "--accent": c } as React.CSSProperties) : undefined}
               onClick={() => onNavigate(l.target)}
             >
               <div className="persona-label">
@@ -389,7 +389,7 @@ function Explore({ onNavigate }: { onNavigate: (t: string) => void }) {
             <button
               key={l.label}
               className="persona-card"
-              style={c ? { borderLeft: `4px solid ${c}` } : undefined}
+              style={c ? ({ "--accent": c } as React.CSSProperties) : undefined}
               onClick={() => onNavigate(l.target)}
             >
               <div className="persona-label">
@@ -481,7 +481,7 @@ function PageView({
               <button
                 key={l.label}
                 className="next-link"
-                style={c ? { borderLeft: `3px solid ${c}` } : undefined}
+                style={c ? ({ "--accent": c } as React.CSSProperties) : undefined}
                 onClick={() => onNavigate(l.target)}
               >
                 <span className="next-link-label">

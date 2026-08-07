@@ -751,6 +751,12 @@ export function threadInfo(
 }
 
 export function threadColor(code: string): string | null {
+  // Utility destinations get their own consistent accents so every
+  // card has a colored bar rather than some appearing unstyled.
+  if (code === CALC) return "#2f6f7a";
+  if (code === "FIND_REBATES") return "#8a5a2b";
+  if (code === "FIND_CONTRACTORS") return "#4a5568";
+  if (code === EXPLORE) return "#5c6862";
   return threads[code[0]]?.color ?? null;
 }
 

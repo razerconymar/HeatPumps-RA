@@ -80,6 +80,7 @@ h1, h2, h3 {
 }
 .persona-grid { display: grid; gap: 14px; }
 .persona-card {
+  position: relative;
   text-align: left;
   background: var(--card);
   border: 1px solid var(--line);
@@ -89,6 +90,16 @@ h1, h2, h3 {
   transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   font: inherit;
   color: inherit;
+  overflow: hidden;
+}
+.persona-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent, var(--line));
 }
 .persona-card:hover, .persona-card:focus-visible {
   border-color: var(--pine);
@@ -458,6 +469,7 @@ h1, h2, h3 {
 /* ── Next links (storyboard "learn next" pattern) ── */
 .next-links { display: grid; gap: 8px; }
 .next-link {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -466,13 +478,23 @@ h1, h2, h3 {
   font: inherit;
   font-size: calc(14.5px * var(--text-scale, 1));
   font-weight: 500;
-  padding: 13px 18px;
+  padding: 13px 18px 13px 20px;
   border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--pine-deep);
   cursor: pointer;
   transition: border-color 0.15s, transform 0.15s;
+  overflow: hidden;
+}
+.next-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent, var(--line));
 }
 .next-link:hover { border-color: var(--pine); transform: translateX(2px); }
 .next-arrow { color: var(--warm-text); flex-shrink: 0; }
