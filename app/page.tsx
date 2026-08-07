@@ -83,6 +83,7 @@ export default function Home() {
   const [calcInputs, setCalcInputs] = useState<Record<string, unknown> | null>(
     null
   );
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
   // "off" = casual visitor, no surveys. "pre" | "tool" | "done" = study mode.
   const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
     "off"
@@ -404,14 +405,32 @@ export default function Home() {
           )}
       </div>
 
+      {studyStage === "tool" && (
+        <StudyBar
+          pagesSeen={
+            session.path.filter(
+              (p) => !p.moduleId.startsWith("priority:")
+            ).length
+          }
+          nudgeDismissed={nudgeDismissed}
+          onDismissNudge={() => setNudgeDismissed(true)}
+          onFinish={finish}
+        />
+      )}
+
       <footer className="footer-note">
         Prototype - content marked &ldquo;in development&rdquo; is under
         review. No personal information is collected.{" "}
         <button onClick={() => setView({ name: "data-info" })}>
           Where does this data go?
-        </button>{" "}
-        <button onClick={exportSessionsCsv}>Export results (CSV)</button>{" "}
-        <button onClick={exportSessions}>Export raw (JSON)</button>
+        </button>
+        {studyStage === "off" && (
+          <>
+            {" "}
+            <button onClick={exportSessionsCsv}>Export results (CSV)</button>{" "}
+            <button onClick={exportSessions}>Export raw (JSON)</button>
+          </>
+        )}
       </footer>
     </main>
   );
@@ -1010,6 +1029,54 @@ function MicroSurvey({
           Not really
         </button>
       </div>
+    </div>
+  );
+}
+
+// ── Study mode bar ───────────────────────────────────────────
+//
+// Persistent "I'm finished" button, always visible during a
+// research session, so nobody has to hunt for how to end.
+//
+// After a while a soft nudge appears alongside it. It is
+// dismissible and never blocks the screen: the participant
+// decides when they are done, so we do not truncate their
+// natural browsing behaviour, which is the main thing this
+// session is meant to observe.
+
+const NUDGE_AFTER_PAGES = 10;
+
+function StudyBar({
+  pagesSeen,
+  nudgeDismissed,
+  onDismissNudge,
+  onFinish,
+}: {
+  pagesSeen: number;
+  nudgeDismissed: boolean;
+  onDismissNudge: () => void;
+  onFinish: () => void;
+}) {
+  const showNudge = !nudgeDismissed && pagesSeen >= NUDGE_AFTER_PAGES;
+
+  return (
+    <div className="study-bar">
+      {showNudge && (
+        <div className="study-nudge">
+          <span>Finished exploring? You can wrap up whenever you like.</span>
+          <button
+            className="study-nudge-close"
+            onClick={onDismissNudge}
+            aria-label="Dismiss"
+          >
+            <CloseIcon size={14} />
+          </button>
+        </div>
+      )}
+      <button className="study-finish-btn" onClick={onFinish}>
+        I&rsquo;m finished
+        <span aria-hidden>&rarr;</span>
+      </button>
     </div>
   );
 }

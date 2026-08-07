@@ -1276,3 +1276,71 @@ h1, h2, h3 {
   font-style: italic;
   color: var(--ink-faint);
 }
+
+/* ── Study mode bar ── */
+.study-bar {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: calc(100vw - 40px);
+}
+.study-finish-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: calc(14px * var(--text-scale, 1));
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 99px;
+  border: none;
+  background: var(--pine);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(20, 61, 47, 0.24);
+}
+.study-finish-btn:hover { background: var(--pine-deep); }
+.study-finish-btn:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
+
+.study-nudge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 12px 11px 16px;
+  font-size: calc(13.5px * var(--text-scale, 1));
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(20, 61, 47, 0.12);
+  max-width: 320px;
+  line-height: 1.45;
+}
+.study-nudge-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  padding: 3px;
+  line-height: 0;
+}
+.study-nudge-close:hover { color: var(--ink); }
+
+/* Keep the fixed bar from covering page content at the bottom */
+.study-bar ~ .footer-note { padding-bottom: 70px; }
+
+@media (max-width: 600px) {
+  .study-bar { right: 12px; bottom: 12px; left: 12px; align-items: stretch; }
+  .study-finish-btn { justify-content: center; }
+  .study-nudge { max-width: none; }
+}
+
+@media print {
+  .study-bar { display: none !important; }
+}
