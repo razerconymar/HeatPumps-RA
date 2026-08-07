@@ -35,6 +35,21 @@ All content lives in `data/content.ts`. Each module has:
 
 Add a module to a persona's journey by adding its id to that persona's `flow` array. No other code changes needed.
 
+## Focus group / survey entry point
+
+There are two ways into this app:
+
+- **`/`** — the normal DST landing page, for organic visitors
+- **`/survey`** — a separate entry page for focus group participants, with a short intro and a link out to your Qualtrics survey
+
+To connect them: build your survey in Qualtrics, then in **Survey Flow → End of Survey element → Redirect to a URL**, set the redirect to your deployed site's root with a tag appended, e.g. `https://your-site.vercel.app/?ref=qualtrics-focus-group`. When someone lands back on `/` with that `ref` param, the app tags their anonymous session with that source (visible in the exported session data) and shows a short "thanks for finishing the survey" line before the normal landing page.
+
+Update `QUALTRICS_SURVEY_URL` in `app/survey/page.tsx` with your real survey link once it's built.
+
+## Link order randomization
+
+The "What would you like to learn next?" links on every page are shown in a randomized order, seeded per session and page. This means one visitor sees a consistent order throughout their visit (no links jumping around mid-read), but different visitors see different orders — so if the research data later shows one link getting clicked more than others, it reflects genuine interest rather than the fact that it happened to be listed first.
+
 ## What's intentionally NOT here (deferred scope)
 
 - Financial calculator

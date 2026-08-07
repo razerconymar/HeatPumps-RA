@@ -257,10 +257,11 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
         <div className="source-tag">
           <span className="source-pill validated">Estimates</span>
           <span>
-            Degree-day model. Energy prices from EIA and IURC surveys (July
-            2026). Emissions and install costs are defaults pending EPA eGRID
-            and local quote validation. Not a substitute for a contractor
-            estimate.
+            Degree-day model. Energy prices (EIA, IURC) and install cost
+            ranges (Indiana market data) validated August 2026. Emissions
+            factors still pending EPA eGRID validation. Rebates aren't
+            subtracted here — check the rebates page for what applies to
+            your project. Not a substitute for a contractor estimate.
           </span>
         </div>
       </article>

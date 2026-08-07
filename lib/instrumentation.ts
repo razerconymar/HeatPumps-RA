@@ -30,14 +30,23 @@ export interface StubFeedback {
   submittedAt: number;
 }
 
+export interface MicroSurveyResponse {
+  threadCode: string;
+  question: string;
+  answer: string;
+  submittedAt: number;
+}
+
 export interface SessionLog {
   sessionToken: string;
   startedAt: number;
+  source: string | null; // e.g. "qualtrics-focus-group", null = organic visit
   persona: string | null;
   firstModule: string | null;
   path: ModuleVisit[];
   clarity: "yes" | "somewhat" | "no" | null;
   stubFeedback: StubFeedback[];
+  microSurveys: MicroSurveyResponse[];
 }
 
 const STORAGE_KEY = "hpdst_sessions";
@@ -50,12 +59,24 @@ export function createSession(): SessionLog {
   return {
     sessionToken: newToken(),
     startedAt: Date.now(),
+    source: null,
     persona: null,
     firstModule: null,
     path: [],
     clarity: null,
     stubFeedback: [],
+    microSurveys: [],
   };
+}
+
+export function logMicroSurvey(
+  session: SessionLog,
+  threadCode: string,
+  question: string,
+  answer: string
+): void {
+  session.microSurveys.push({ threadCode, question, answer, submittedAt: Date.now() });
+  persist(session);
 }
 
 export function logStubFeedback(
@@ -65,6 +86,12 @@ export function logStubFeedback(
 ): void {
   if (!text.trim()) return;
   session.stubFeedback.push({ pageCode, text: text.trim(), submittedAt: Date.now() });
+  persist(session);
+}
+
+export function logSource(session: SessionLog, source: string): void {
+  if (session.source) return; // first touch wins
+  session.source = source;
   persist(session);
 }
 

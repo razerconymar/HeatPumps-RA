@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getPage,
   landingLinks,
   exploreLinks,
   persistentNav,
   threadInfo,
+  threadColor,
+  threadSurveys,
   searchPages,
   readingTime,
   PageLink,
@@ -16,13 +18,30 @@ import {
 } from "@/data/pages";
 import Calculator from "@/components/Calculator";
 import HeatPumpDiagram from "@/components/HeatPumpDiagram";
-import { splitWithGlossary, definitionFor } from "@/data/glossary";
+import { seededShuffle } from "@/lib/shuffle";
+import {
+  DollarSign,
+  Wrench,
+  HelpCircle,
+  Leaf,
+  BookOpen,
+  Menu as MenuIcon,
+  X as CloseIcon,
+  Search as SearchIcon,
+  Calculator as CalcIcon,
+  MapPin,
+  Sparkles,
+  ChevronDown,
+} from "lucide-react";
+import { richSegments, definitionFor } from "@/data/glossary";
 import {
   createSession,
   logPersona,
   logModuleEnter,
   logClarity,
   logStubFeedback,
+  logMicroSurvey,
+  logSource,
   exportSessions,
   SessionLog,
 } from "@/lib/instrumentation";
@@ -43,8 +62,27 @@ export default function Home() {
 
   const [view, setView] = useState<View>({ name: "landing" });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openNav, setOpenNav] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [trail, setTrail] = useState<{ code: string; title: string }[]>([]);
+  const [seenSurveys, setSeenSurveys] = useState<Set<string>>(new Set());
+  const [fromSurvey, setFromSurvey] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      logSource(session, ref);
+      setFromSurvey(true);
+      // clean the URL so refreshing doesn't re-trigger or expose it
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function dismissSurvey(threadCode: string) {
+    setSeenSurveys((s) => new Set(s).add(threadCode));
+  }
 
   function titleFor(target: string): string {
     if (target === CALC) return "Cost calculator";
@@ -62,6 +100,7 @@ export default function Home() {
 
   function navigate(target: string, fromLanding = false) {
     setMenuOpen(false);
+    setOpenNav(null);
     if (target === CALC) {
       logModuleEnter(session, "CALC");
       pushTrail(target);
@@ -111,46 +150,70 @@ export default function Home() {
             <div className="brand-sub">Plain answers, one step at a time</div>
           </div>
         </div>
+
+        <nav className="nav-bar" aria-label="Site navigation">
+          {persistentNav.map((section) => (
+            <NavDropdown
+              key={section.heading}
+              heading={section.heading}
+              links={section.links}
+              onNavigate={navigate}
+              open={openNav === section.heading}
+              onOpen={() => setOpenNav(section.heading)}
+              onClose={() =>
+                setOpenNav((cur) => (cur === section.heading ? null : cur))
+              }
+            />
+          ))}
+          <button className="nav-item nav-item-plain" onClick={finish}>
+            <Sparkles size={14} />
+            Feedback
+          </button>
+        </nav>
+
+        <div className="topbar-search">
+          <SearchIcon size={16} className="topbar-search-icon" aria-hidden />
+          <input
+            type="search"
+            className="topbar-search-input"
+            placeholder="Search topics..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search topics"
+          />
+          {search.trim().length >= 2 && (
+            <div className="topbar-search-results">
+              {searchPages(search).length === 0 && (
+                <div className="search-empty">No matches</div>
+              )}
+              {searchPages(search).slice(0, 6).map((p) => (
+                <button
+                  key={p.code}
+                  className="menu-link"
+                  onClick={() => {
+                    setSearch("");
+                    navigate(p.code);
+                  }}
+                >
+                  {p.title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
-          className="menu-btn"
+          className="menu-btn mobile-only"
           onClick={() => setMenuOpen((o) => !o)}
           aria-expanded={menuOpen}
         >
+          {menuOpen ? <CloseIcon size={16} /> : <MenuIcon size={16} />}
           {menuOpen ? "Close" : "Menu"}
         </button>
       </header>
 
       {menuOpen && (
-        <nav className="menu-panel" aria-label="Site navigation">
-          <div className="menu-section menu-search">
-            <input
-              type="search"
-              className="search-input"
-              placeholder="Search topics..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              aria-label="Search topics"
-            />
-            {search.trim().length >= 2 && (
-              <div className="search-results">
-                {searchPages(search).length === 0 && (
-                  <div className="search-empty">No matches</div>
-                )}
-                {searchPages(search).slice(0, 6).map((p) => (
-                  <button
-                    key={p.code}
-                    className="menu-link"
-                    onClick={() => {
-                      setSearch("");
-                      navigate(p.code);
-                    }}
-                  >
-                    {p.title}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <nav className="menu-panel mobile-only" aria-label="Site navigation (mobile)">
           {persistentNav.map((section) => (
             <div key={section.heading} className="menu-section">
               <div className="menu-heading">{section.heading}</div>
@@ -160,6 +223,7 @@ export default function Home() {
                   className="menu-link"
                   onClick={() => navigate(l.target)}
                 >
+                  <NavIcon target={l.target} />
                   {l.label}
                 </button>
               ))}
@@ -168,6 +232,7 @@ export default function Home() {
           <div className="menu-section">
             <div className="menu-heading">Information</div>
             <button className="menu-link" onClick={finish}>
+              <Sparkles size={15} />
               I&rsquo;m done - quick feedback
             </button>
           </div>
@@ -183,7 +248,13 @@ export default function Home() {
           {view.name === "explore" && <Explore onNavigate={navigate} />}
 
           {view.name === "page" && (
-            <PageView code={view.code} onNavigate={navigate} session={session} />
+            <PageView
+              code={view.code}
+              onNavigate={navigate}
+              session={session}
+              seenSurveys={seenSurveys}
+              onSurveyDone={dismissSurvey}
+            />
           )}
 
           {view.name === "calc" && (
@@ -231,9 +302,20 @@ export default function Home() {
 
 // ── Landing page (0A) ───────────────────────────────────────
 
-function Landing({ onNavigate }: { onNavigate: (t: string) => void }) {
+function Landing({
+  onNavigate,
+  fromSurvey,
+}: {
+  onNavigate: (t: string) => void;
+  fromSurvey?: boolean;
+}) {
   return (
     <section>
+      {fromSurvey && (
+        <div className="survey-welcome">
+          Thanks for finishing the survey. Now let&rsquo;s explore the tool.
+        </div>
+      )}
       <h1 className="hero-title">What brings you here today?</h1>
       <p className="hero-lede">
         Heat pumps are unfamiliar to most people, and the information online is
@@ -241,15 +323,19 @@ function Landing({ onNavigate }: { onNavigate: (t: string) => void }) {
         we&rsquo;ll take it one step at a time.
       </p>
       <div className="persona-grid">
-        {landingLinks.map((l) => (
-          <button
-            key={l.target}
-            className="persona-card"
-            onClick={() => onNavigate(l.target)}
-          >
-            <div className="persona-label">{l.label}</div>
-          </button>
-        ))}
+        {landingLinks.map((l) => {
+          const c = threadColor(l.target);
+          return (
+            <button
+              key={l.target}
+              className="persona-card"
+              style={c ? { borderLeft: `4px solid ${c}` } : undefined}
+              onClick={() => onNavigate(l.target)}
+            >
+              <div className="persona-label">{l.label}</div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -286,20 +372,33 @@ function PageView({
   code,
   onNavigate,
   session,
+  seenSurveys,
+  onSurveyDone,
 }: {
   code: string;
   onNavigate: (t: string) => void;
   session: SessionLog;
+  seenSurveys: Set<string>;
+  onSurveyDone: (threadCode: string) => void;
 }) {
   const page = getPage(code);
   if (!page) return null;
   const thread = threadInfo(code);
+  const threadKey = code[0];
+  const isLastInThread = thread ? thread.pos === thread.total : false;
+  const surveyQuestion = threadSurveys[threadKey];
+  const showSurvey =
+    isLastInThread && surveyQuestion && !seenSurveys.has(threadKey);
+  const orderedLinks = useMemo(
+    () => seededShuffle(page.links, session.sessionToken + code),
+    [page, session.sessionToken, code]
+  );
 
   return (
     <section>
       <div className="page-meta-row">
         {thread && (
-          <div className="thread-hint">
+          <div className="thread-hint" style={{ color: thread.color }}>
             {thread.name} &middot; page {thread.pos} of {thread.total}
           </div>
         )}
@@ -323,21 +422,36 @@ function PageView({
         )}
       </article>
 
+      {showSurvey && (
+        <MicroSurvey
+          question={surveyQuestion}
+          onAnswer={(answer) => {
+            logMicroSurvey(session, threadKey, surveyQuestion, answer);
+            onSurveyDone(threadKey);
+          }}
+          onDismiss={() => onSurveyDone(threadKey)}
+        />
+      )}
+
       <div className="related-block">
         <div className="related-label">What would you like to learn next?</div>
         <div className="next-links">
-          {page.links.map((l: PageLink) => (
-            <button
-              key={l.label}
-              className="next-link"
-              onClick={() => onNavigate(l.target)}
-            >
-              {l.label}
-              <span className="next-arrow" aria-hidden>
-                &rarr;
-              </span>
-            </button>
-          ))}
+          {orderedLinks.map((l: PageLink) => {
+            const c = threadColor(l.target);
+            return (
+              <button
+                key={l.label}
+                className="next-link"
+                style={c ? { borderLeft: `3px solid ${c}` } : undefined}
+                onClick={() => onNavigate(l.target)}
+              >
+                {l.label}
+                <span className="next-arrow" aria-hidden>
+                  &rarr;
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -346,10 +460,27 @@ function PageView({
 
 function GlossaryLine({ text }: { text: string }) {
   const [open, setOpen] = useState<number | null>(null);
-  const parts = splitWithGlossary(text);
+  const parts = richSegments(text);
   return (
     <>
       {parts.map((p, i) => {
+        if (p.type === "link") {
+          let host = p.value;
+          try {
+            host = new URL(p.value).hostname.replace(/^www\./, "");
+          } catch {}
+          return (
+            <a
+              key={i}
+              href={p.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-link"
+            >
+              {host}
+            </a>
+          );
+        }
         if (p.type === "text") return <span key={i}>{p.value}</span>;
         const def = definitionFor(p.value);
         if (!def) return <span key={i}>{p.value}</span>;
@@ -510,6 +641,84 @@ function Done({ onRestart }: { onRestart: () => void }) {
 }
 
 
+// ── Menu icon lookup ─────────────────────────────────────────
+
+// ── Nav dropdown (hover on desktop, click/tap on touch) ─────
+
+function NavDropdown({
+  heading,
+  links,
+  onNavigate,
+  open,
+  onOpen,
+  onClose,
+}: {
+  heading: string;
+  links: { label: string; target: string }[];
+  onNavigate: (t: string) => void;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  function handleEnter() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    onOpen();
+  }
+  function handleLeave() {
+    closeTimer.current = setTimeout(onClose, 120);
+  }
+
+  return (
+    <div
+      className="nav-dropdown"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <button
+        className="nav-item"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => (open ? onClose() : onOpen())}
+      >
+        {heading}
+        <ChevronDown size={13} className={"nav-chevron" + (open ? " up" : "")} />
+      </button>
+      {open && (
+        <div className="nav-dropdown-panel" role="menu">
+          {links.map((l) => (
+            <button
+              key={l.label}
+              className="nav-dropdown-link"
+              role="menuitem"
+              onClick={() => onNavigate(l.target)}
+            >
+              <NavIcon target={l.target} />
+              {l.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NavIcon({ target }: { target: string }) {
+  const size = 15;
+  if (target === CALC) return <CalcIcon size={size} />;
+  if (target === "FIND_REBATES") return <MapPin size={size} />;
+  if (target === "FIND_CONTRACTORS") return <Wrench size={size} />;
+  const t = target[0];
+  if (t === "1") return <DollarSign size={size} />;
+  if (t === "2") return <HelpCircle size={size} />;
+  if (t === "3") return <Wrench size={size} />;
+  if (t === "4") return <HelpCircle size={size} />;
+  if (t === "5") return <Leaf size={size} />;
+  if (t === "6") return <BookOpen size={size} />;
+  return <HelpCircle size={size} />;
+}
+
 // ── Journey tracker ─────────────────────────────────────────
 
 function JourneyRail({
@@ -530,18 +739,25 @@ function JourneyRail({
         <span className="journey-dot" aria-hidden />
         Start
       </button>
-      {trail.map((s) => (
-        <button
-          key={s.code}
-          className={"journey-step" + (s.code === current ? " here" : "")}
-          onClick={() => onJump(s.code)}
-          aria-current={s.code === current ? "step" : undefined}
-        >
-          <span className="journey-dot" aria-hidden />
-          {s.title}
-          {s.code === current && <span className="journey-you">you are here</span>}
-        </button>
-      ))}
+      {trail.map((s) => {
+        const c = threadColor(s.code);
+        return (
+          <button
+            key={s.code}
+            className={"journey-step" + (s.code === current ? " here" : "")}
+            onClick={() => onJump(s.code)}
+            aria-current={s.code === current ? "step" : undefined}
+          >
+            <span
+              className="journey-dot"
+              aria-hidden
+              style={c ? { background: c, opacity: 1 } : undefined}
+            />
+            {s.title}
+            {s.code === current && <span className="journey-you">you are here</span>}
+          </button>
+        );
+      })}
     </aside>
   );
 }
@@ -589,5 +805,38 @@ function DataInfo() {
         </div>
       </article>
     </section>
+  );
+}
+
+
+// ── Micro-survey (embedded, dismissible, once per thread) ──
+
+function MicroSurvey({
+  question,
+  onAnswer,
+  onDismiss,
+}: {
+  question: string;
+  onAnswer: (a: string) => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="micro-survey">
+      <button className="micro-survey-close" onClick={onDismiss} aria-label="Dismiss">
+        <CloseIcon size={14} />
+      </button>
+      <div className="micro-survey-q">{question}</div>
+      <div className="micro-survey-options">
+        <button className="btn btn-primary btn-small" onClick={() => onAnswer("yes")}>
+          Yes
+        </button>
+        <button className="btn btn-ghost btn-small" onClick={() => onAnswer("somewhat")}>
+          Somewhat
+        </button>
+        <button className="btn btn-ghost btn-small" onClick={() => onAnswer("not really")}>
+          Not really
+        </button>
+      </div>
+    </div>
   );
 }

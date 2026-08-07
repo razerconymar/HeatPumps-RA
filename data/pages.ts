@@ -65,7 +65,7 @@ export const pages: Record<string, Page> = {
       "The largest financial hurdle for many homeowners is the upfront cost of installing a heat pump. Fortunately, the amount you actually pay depends on several factors, and many homeowners qualify for rebates, tax credits, or financing that reduce the initial cost.",
       "## The heat pump itself",
       "Heat pumps vary in price by size, efficiency, and features. Most homeowners install an air-source heat pump, suitable for the vast majority of homes. Cold-climate air-source models are built for regions with weeks of below-freezing winters. Ground-source (geothermal) systems cost considerably more because they require underground piping - most homeowners will not need one.",
-      "In Indiana, average installed heat pump costs are around $11,500, compared with roughly $4,000–$10,000 for gas furnaces and $3,000–$7,500 for central air conditioners. Replacing both a furnace and an AC with one heat pump changes that comparison meaningfully.",
+      "In Indiana, a standard heat pump installation typically runs $9,000 to $13,000, with cold-climate and geothermal systems running higher. That compares with roughly $3,500 to $10,000 for a gas furnace alone and $5,500 to $16,000 for central air alone. Replacing both a furnace and an AC with one heat pump changes that comparison meaningfully, since you're paying for one installation instead of two. Use the calculator for a rough estimate specific to your home, and remember that rebates (covered next) apply on top of these figures.",
       "## Installation",
       "Installing an air-source heat pump is as straightforward as installing an air conditioner - a licensed installer is required, but there is no extra complexity. Costs vary by contractor, home layout, and whether existing ductwork can be used, so getting more than one quote is worthwhile.",
       "## Electrical upgrades",
@@ -133,8 +133,20 @@ export const pages: Record<string, Page> = {
     title: "Are there rebates or other financing options?",
     status: "drafted",
     body: [
-      "Financing options for a heat pump, like any large appliance, vary by location. A customer should consider federal, state, county, city, utility, and installation rebates - several of these can stack.",
-      "Indiana-specific rebate details are being compiled and validated for this page. Until then, the practical guidance stands: never evaluate a heat pump quote without checking which incentives apply. The net cost after incentives is often significantly lower than the sticker price.",
+      "Yes, and the landscape changed in a big way recently. The federal tax credit that used to cover up to $2,000 of a heat pump (Section 25C) expired for anything installed after December 31, 2025, under the One Big Beautiful Bill Act signed July 4, 2025. If you're installing in 2026, that specific credit is gone. What's still active are state and utility rebates, which for many Indiana homeowners add up to more than the old federal credit did anyway.",
+      "## Indiana's statewide rebate program",
+      "The Indiana Energy Saver Program, run by the Indiana Office of Energy Development, combines two federal-funded rebate tracks into one application: Home Efficiency Rebates (HOMES) for whole-home retrofits, and Home Appliance Rebates (HEAR) for income-qualified households buying efficient equipment like heat pumps. HEAR can cover a meaningful share of a heat pump's cost for households at or below 150% of the area median income. Rebates apply as an upfront discount at the time of installation through a qualified contractor, not a tax credit you wait to claim.",
+      "Apply and check current amounts at https://www.indianaenergysaver.com, or call the program hotline at 855-446-7283.",
+      "## Utility rebates: Duke Energy Indiana",
+      "Duke Energy Indiana's Smart $aver program offers a $500 rebate to upgrade an existing heat pump, $600 to $1,000 to convert electric strip heat to a heat pump depending on the efficiency tier installed, and $300 toward an air conditioner-only upgrade. There's no separate application: your participating contractor submits it for you within 60 days of the work.",
+      "Details and current rebate amounts: https://www.duke-energy.com/home/products/home-energy-improvement/hvac-replacement",
+      "## Utility rebates: SCI REMC",
+      "South Central Indiana REMC, one of this project's sponsors, offers tiered rebates for air-source heat pumps based on efficiency: $300 for SEER2 14.3 to 15.3, $400 for 15.4 to 17.2, and $500 for 17.3 and up. Geothermal installations get a flat $2,000 rebate. You'll need an AHRI certificate from your contractor or the manufacturer to apply, and the equipment has to be installed in a home served by SCI REMC.",
+      "Full details: https://www.sciremc.com/save-energy-money/rebates-credits/",
+      "## Stacking incentives",
+      "State and utility rebates generally can be combined with each other. A homeowner who qualifies for HEAR and is served by SCI REMC could reasonably stack both. Ask your contractor to confirm what you qualify for before signing anything, since income limits and program funding can both affect what's actually available at the time you install.",
+      "## Other places to check",
+      "DSIRE (the Database of State Incentives for Renewables & Efficiency) tracks every program that applies to your address, federal, state, and utility: https://www.dsireusa.org",
     ],
     links: [
       { label: "Estimate cost savings for my home", target: CALC },
@@ -145,6 +157,7 @@ export const pages: Record<string, Page> = {
   },
 
   // ── 2A thread: how they work ──────────────────────────────
+
 
   "2A": {
     code: "2A",
@@ -614,13 +627,21 @@ export const pages: Record<string, Page> = {
   FIND_CONTRACTORS: {
     code: "FIND_CONTRACTORS",
     title: "Find contractors",
-    status: "stub",
+    status: "drafted",
     body: [
-      "A contractor directory for your area is planned for a later phase of this tool.",
-      "Until then, the strongest move you can make is knowing what to ask. The contractor questions guide prepares you to evaluate any quote with confidence.",
+      "This tool doesn't have a built-in contractor directory yet, but a few real, established resources can point you to qualified installers today.",
+      "## ACCA At Home",
+      "The Air Conditioning Contractors of America runs a free contractor locator that only lists nationally recognized HVAC contractors. Search by zip code at https://hvac-contractors.acca.org/acca-at-home",
+      "## Verify NATE certification",
+      "NATE (North American Technician Excellence) is the industry's main technician certification. Any contractor can tell you they're qualified; NATE certification is a way to check. Learn more or verify a technician at https://natex.org",
+      "## Contractors already tied to your rebates",
+      "If you're planning to use a utility rebate, this can simplify your search: Duke Energy Indiana's Smart $aver program and SCI REMC's rebate program both work through contractors who are already familiar with the paperwork and efficiency requirements. Ask any contractor you're considering whether they've submitted Smart $aver or SCI REMC rebates before; a yes usually means a smoother process for you.",
+      "## What to do once you have a few names",
+      "Get two or three quotes, not one. Bring the questions from the contractor guide to every conversation, the same questions, asked the same way, so you can actually compare answers instead of just prices.",
     ],
     links: [
       { label: "What should I ask a contractor?", target: "3C" },
+      { label: "Are there rebates or financing options?", target: "1E" },
       { label: "Back to exploring", target: EXPLORE },
     ],
   },
@@ -628,13 +649,23 @@ export const pages: Record<string, Page> = {
   FIND_REBATES: {
     code: "FIND_REBATES",
     title: "Find rebates in my area",
-    status: "stub",
+    status: "drafted",
     body: [
-      "A rebate lookup for Indiana utilities and federal programs is planned for a later phase, pending validation against current program terms (DSIRE, utility programs, federal tax credits).",
-      "The practical guidance holds today: never evaluate a heat pump quote without checking which incentives apply. Ask each contractor which rebates the quoted equipment qualifies for and whether they handle the paperwork.",
+      "Quick reference, in the order most Indiana homeowners should check them.",
+      "## 1. Indiana Energy Saver Program (state)",
+      "Combines HOMES and HEAR rebates in one application. HEAR is income-qualified and can meaningfully offset a heat pump for households at or below 150% of the area median income. Apply at https://www.indianaenergysaver.com or call 855-446-7283.",
+      "## 2. Your electric utility",
+      "If you're served by Duke Energy Indiana: https://www.duke-energy.com/home/products/home-energy-improvement/hvac-replacement",
+      "If you're served by South Central Indiana REMC: https://www.sciremc.com/save-energy-money/rebates-credits/",
+      "Not sure who serves your home? Check a recent electric bill; the utility name is usually right at the top.",
+      "## 3. DSIRE, for everything else",
+      "The Database of State Incentives for Renewables & Efficiency tracks every program, federal, state, and utility, that applies to your address. It's the most complete single source available: https://www.dsireusa.org",
+      "## One thing worth knowing before you shop",
+      "The federal tax credit that used to add up to $2,000 (Section 25C) expired for anything installed after December 31, 2025. If you're pricing a 2026 installation, don't count on it, and be skeptical of any contractor who advertises it as still available.",
     ],
     links: [
       { label: "Are there rebates or financing options?", target: "1E" },
+      { label: "Find contractors", target: "FIND_CONTRACTORS" },
       { label: "Back to exploring", target: EXPLORE },
     ],
   },
@@ -699,20 +730,26 @@ export function getPage(code: string): Page | undefined {
 
 // ── Threads (for "where am I" progress hints) ───────────────
 
-export const threads: Record<string, { name: string; order: string[] }> = {
-  "1": { name: "Money path", order: ["1A", "1B", "1C", "1D", "1E"] },
-  "2": { name: "How it works", order: ["2A", "2B", "2C", "2D", "2E"] },
-  "3": { name: "Replacement path", order: ["3A", "3B", "3C", "3D"] },
-  "4": { name: "Sorting fact from fiction", order: ["4A", "4B", "4C", "4D", "4E", "4F"] },
-  "5": { name: "Environment path", order: ["5A", "5B", "5C", "5D", "5E", "5F"] },
+export const threads: Record<string, { name: string; order: string[]; color: string }> = {
+  "1": { name: "Money path", order: ["1A", "1B", "1C", "1D", "1E"], color: "#a85817" },
+  "2": { name: "How it works", order: ["2A", "2B", "2C", "2D", "2E"], color: "#2f5f89" },
+  "3": { name: "Replacement path", order: ["3A", "3B", "3C", "3D"], color: "#b5342f" },
+  "4": { name: "Sorting fact from fiction", order: ["4A", "4B", "4C", "4D", "4E", "4F"], color: "#6a4c93" },
+  "5": { name: "Environment path", order: ["5A", "5B", "5C", "5D", "5E", "5F"], color: "#1e5b45" },
 };
 
-export function threadInfo(code: string): { name: string; pos: number; total: number } | null {
+export function threadInfo(
+  code: string
+): { name: string; pos: number; total: number; color: string } | null {
   const t = threads[code[0]];
   if (!t) return null;
   const pos = t.order.indexOf(code);
   if (pos < 0) return null;
-  return { name: t.name, pos: pos + 1, total: t.order.length };
+  return { name: t.name, pos: pos + 1, total: t.order.length, color: t.color };
+}
+
+export function threadColor(code: string): string | null {
+  return threads[code[0]]?.color ?? null;
 }
 
 // ── Search across all pages ─────────────────────────────────
@@ -735,3 +772,16 @@ export function readingTime(page: Page): string {
   const minutes = Math.max(1, Math.round(words / 200));
   return `~${minutes} min read`;
 }
+
+
+// ── Micro-survey questions per thread ────────────────────────
+// Shown once, inline, when a user reaches the last page of a
+// thread. Lightweight and dismissible, not a blocking popup.
+
+export const threadSurveys: Record<string, string> = {
+  "1": "Does this change how you think about affording a heat pump?",
+  "2": "Do you feel like you understand how a heat pump works now?",
+  "3": "Do you feel more ready to talk to a contractor?",
+  "4": "Did this change anything you believed about heat pumps?",
+  "5": "Does this change your interest in a heat pump for environmental reasons?",
+};

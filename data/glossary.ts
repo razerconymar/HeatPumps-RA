@@ -81,3 +81,39 @@ export function splitWithGlossary(text: string): TextSegment[] {
 export function definitionFor(term: string): string | undefined {
   return glossary.find((g) => g.term === term)?.definition;
 }
+
+
+// ─────────────────────────────────────────────────────────────
+// Rich text: combines glossary term highlighting with automatic
+// link detection, so cited source URLs in page content render
+// as real clickable links instead of plain text.
+// ─────────────────────────────────────────────────────────────
+
+export interface RichSegment {
+  type: "text" | "term" | "link";
+  value: string;
+}
+
+const urlPattern = /(https?:\/\/[^\s)]+)/g;
+
+export function richSegments(text: string): RichSegment[] {
+  const out: RichSegment[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  urlPattern.lastIndex = 0;
+  while ((m = urlPattern.exec(text))) {
+    if (m.index > lastIndex) {
+      out.push(...splitWithGlossary(text.slice(lastIndex, m.index)).map(toRich));
+    }
+    out.push({ type: "link", value: m[0] });
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < text.length) {
+    out.push(...splitWithGlossary(text.slice(lastIndex)).map(toRich));
+  }
+  return out.length > 0 ? out : [{ type: "text", value: text }];
+}
+
+function toRich(s: TextSegment): RichSegment {
+  return { type: s.type, value: s.value };
+}

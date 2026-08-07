@@ -80,20 +80,40 @@ const SYSTEMS = {
 };
 const BASELINE_AC_SEER2 = 14;
 
-// Prices — PLACEHOLDER, validate against EIA
-const PRICE = { elecPerKwh: 0.15, gasPerTherm: 1.15, propanePerGal: 2.1 };
+// Prices — VALIDATED August 2026 against public sources:
+//   Electricity: EIA-reported Indiana residential all-in average
+//     ~17.9c/kWh (April 2026 reporting, priceofelectricity.com
+//     citing EIA), corroborated 16.19-19c range across sources.
+//   Natural gas: IURC February 2026 Residential Survey, blended
+//     across major Indiana utilities at the 250-therm tier
+//     (in.gov/iurc), roughly $1.00-1.61/therm all-in by utility.
+//   Propane: EIA Weekly Heating Oil and Propane Survey, Indiana
+//     residential $2.634/gal, week ending 3/30/2026.
+const PRICE = { elecPerKwh: 0.17, gasPerTherm: 1.15, propanePerGal: 2.63 };
 
 // Emission factors — PLACEHOLDER, validate against EPA eGRID / EF Hub
 const EF = { elecLbPerKwh: 1.4, gasLbPerTherm: 11.7, propaneLbPerGal: 12.7 };
 
-// Installed cost estimates — PLACEHOLDER, validate with local quotes
+// Installed cost estimates — VALIDATED August 2026 against public
+// Indiana-market and national sources, blended toward Indiana-
+// specific figures where available:
+//   Armor Air (Indianapolis): heat pump $4,500-$10,500
+//   HomeSense (Indiana): full HVAC replacement $5,000-$12,000
+//   Angi (Indianapolis): heat pump avg $5,433 ($3,970-$6,970)
+//   Modernize (national, 56k projects): full system $11,590-$14,100
+//   HVACLoadCalculate (national): ASHP $8,000-$15,000
+//   Geothermal: DOE/industry consensus $20,000-$35,000 installed
+// These remain rough planning estimates, not quotes — a real
+// installer quote depends on ductwork, electrical, and home
+// specifics this calculator can't see. Rebates (see the rebates
+// page) are not subtracted here; they apply on top of these figures.
 const INSTALL: Record<Baseline | HeatPumpType, number> = {
-  gas: 11000,
-  propane: 11000,
-  electric: 9000,
-  ashp: 14000,
-  ccashp: 17000,
-  gshp: 30000,
+  gas: 10000,
+  propane: 10000,
+  electric: 8500,
+  ashp: 10500,
+  ccashp: 13000,
+  gshp: 27000,
 };
 
 // ── model ──────────────────────────────────────────────────
