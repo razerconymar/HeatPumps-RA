@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   runCalculator,
   CalcInputs,
@@ -14,7 +14,13 @@ import {
 const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 const fmt1 = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 1 });
 
-export default function Calculator({ onDone }: { onDone: () => void }) {
+export default function Calculator({
+  onDone,
+  onInputsChange,
+}: {
+  onDone: () => void;
+  onInputsChange?: (inputs: CalcInputs) => void;
+}) {
   const [inputs, setInputs] = useState<CalcInputs>({
     size: "medium",
     customSqft: 2000,
@@ -27,6 +33,13 @@ export default function Calculator({ onDone }: { onDone: () => void }) {
   });
 
   const results = useMemo(() => runCalculator(inputs), [inputs]);
+
+  // Surface the current settings so the conclusion page / agent can
+  // reference what the person actually entered.
+  useEffect(() => {
+    onInputsChange?.(inputs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputs]);
   const set = <K extends keyof CalcInputs>(k: K, v: CalcInputs[K]) =>
     setInputs((prev) => ({ ...prev, [k]: v }));
 

@@ -1181,3 +1181,98 @@ h1, h2, h3 {
   color: var(--ink-faint);
   margin-top: 4px;
 }
+
+/* ── Conclusion page ── */
+.conclusion { padding-bottom: 8px; }
+.recap-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.recap-heading {
+  font-size: calc(12.5px * var(--text-scale, 1));
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.recap-list {
+  margin: 0 0 0 18px;
+  padding: 0;
+}
+.recap-list li {
+  font-size: calc(14px * var(--text-scale, 1));
+  color: var(--ink);
+  margin-bottom: 5px;
+  line-height: 1.45;
+}
+.recap-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: calc(13px * var(--text-scale, 1));
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* ── Agent integration slot ── */
+.agent-slot {
+  position: relative;
+  background: var(--cool-soft);
+  border: 1px dashed #a9c4dc;
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 22px;
+}
+.agent-slot-badge {
+  display: inline-block;
+  font-size: calc(11px * var(--text-scale, 1));
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cool-text);
+  background: rgba(255,255,255,0.75);
+  padding: 3px 9px;
+  border-radius: 99px;
+  margin-bottom: 10px;
+}
+.agent-slot-title {
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: calc(17px * var(--text-scale, 1));
+  font-weight: 600;
+  color: var(--pine-deep);
+  margin-bottom: 6px;
+}
+.agent-slot-text {
+  font-size: calc(14px * var(--text-scale, 1));
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.agent-slot-debug {
+  margin-top: 16px;
+  font-size: calc(12.5px * var(--text-scale, 1));
+  color: var(--ink-soft);
+}
+.agent-slot-debug summary {
+  cursor: pointer;
+  color: var(--cool-text);
+  font-weight: 500;
+}
+.agent-slot-debug ul {
+  margin: 10px 0 0 18px;
+  padding: 0;
+  line-height: 1.6;
+}
+.agent-slot-debug code {
+  background: rgba(0,0,0,0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.agent-slot-note {
+  margin-top: 10px;
+  font-style: italic;
+  color: var(--ink-faint);
+}

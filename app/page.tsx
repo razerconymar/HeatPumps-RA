@@ -18,6 +18,8 @@ import {
 } from "@/data/pages";
 import Calculator from "@/components/Calculator";
 import Survey, { SurveyAnswers } from "@/components/Survey";
+import Conclusion from "@/components/Conclusion";
+import { AgentContext } from "@/components/AgentPanel";
 import { preQuestions, postQuestions } from "@/data/survey-questions";
 import HeatPumpDiagram from "@/components/HeatPumpDiagram";
 import { seededShuffle } from "@/lib/shuffle";
@@ -78,6 +80,9 @@ export default function Home() {
   const [trail, setTrail] = useState<{ code: string; title: string }[]>([]);
   const [seenSurveys, setSeenSurveys] = useState<Set<string>>(new Set());
   const [fromSurvey, setFromSurvey] = useState(false);
+  const [calcInputs, setCalcInputs] = useState<Record<string, unknown> | null>(
+    null
+  );
   // "off" = casual visitor, no surveys. "pre" | "tool" | "done" = study mode.
   const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
     "off"
@@ -97,6 +102,30 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Assemble the context handed to the conclusion page and agent.
+  function buildAgentContext(): AgentContext {
+    const visited = session.path
+      .map((p) => p.moduleId)
+      .filter((id) => id !== "CALC" && !id.startsWith("priority:"));
+    const totalMs = session.path.reduce(
+      (acc, p) => acc + ((p.exitedAt ?? p.enteredAt) - p.enteredAt),
+      0
+    );
+    return {
+      pagesVisited: visited,
+      pageTitles: visited
+        .map((id) => getPage(id)?.title)
+        .filter((t): t is string => Boolean(t)),
+      entryQuestion: session.persona
+        ? getPage(session.persona)?.title ?? session.persona
+        : "",
+      usedCalculator: session.path.some((p) => p.moduleId === "CALC"),
+      calculatorInputs: calcInputs,
+      timeSpentSeconds: Math.round(totalMs / 1000),
+      sessionToken: session.sessionToken,
+    };
+  }
 
   function dismissSurvey(threadCode: string) {
     setSeenSurveys((s) => new Set(s).add(threadCode));
@@ -305,7 +334,12 @@ export default function Home() {
           )}
 
           {view.name === "calc" && (
-            <Calculator onDone={() => navigate(EXPLORE)} />
+            <Calculator
+              onDone={() => navigate(EXPLORE)}
+              onInputsChange={(i) =>
+                setCalcInputs(i as unknown as Record<string, unknown>)
+              }
+            />
           )}
 
           {view.name === "pre-survey" && (
@@ -341,7 +375,12 @@ export default function Home() {
           {view.name === "clarity" && <ClarityCheck onAnswer={answerClarity} />}
 
           {view.name === "done" && (
-            <Done onRestart={reset} studyMode={studyStage === "done"} />
+            <Conclusion
+              context={buildAgentContext()}
+              studyMode={studyStage === "done"}
+              onNavigate={navigate}
+              onRestart={reset}
+            />
           )}
         </div>
 
@@ -714,41 +753,6 @@ function ClarityCheck({
   );
 }
 
-function Done({
-  onRestart,
-  studyMode,
-}: {
-  onRestart: () => void;
-  studyMode: boolean;
-}) {
-  if (studyMode) {
-    return (
-      <section className="clarity-card">
-        <h2 className="clarity-title">All done, thank you</h2>
-        <p className="clarity-sub">
-          That is everything. Your responses have been recorded. Please let the
-          facilitator know you have finished.
-        </p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="clarity-card">
-      <h2 className="clarity-title">Thanks for exploring</h2>
-      <p className="clarity-sub">
-        Your feedback helps this tool get better. When you&rsquo;re ready for
-        the next step, the contractor questions guide is a good place to
-        return to.
-      </p>
-      <div className="clarity-options">
-        <button className="btn btn-primary" onClick={onRestart}>
-          Start over
-        </button>
-      </div>
-    </section>
-  );
-}
 
 
 // ── Menu icon lookup ─────────────────────────────────────────

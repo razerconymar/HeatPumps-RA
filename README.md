@@ -71,6 +71,33 @@ Data is stored in the browser's localStorage, so **export before clearing browse
 
 No names, emails, or personal information are collected. Each session gets a random token that exists only to link a participant's pre answers, activity, and post answers together.
 
+
+## Conclusion page and agent integration
+
+The visit ends on a conclusion page (`components/Conclusion.tsx`) that recaps which pages the person read, notes whether they used the calculator, and offers concrete next steps (rebates, contractor questions, finding an installer).
+
+**The conversational agent plugs into `components/AgentPanel.tsx` and nothing else.** That file currently renders a labelled placeholder. Replace the marked section with the real agent UI; no other file needs to change.
+
+The agent receives an `AgentContext` object describing the visit:
+
+| Field | What it holds |
+|---|---|
+| `pagesVisited` | page codes in visit order, e.g. `["1A","1B","1E"]` |
+| `pageTitles` | the same list, human-readable |
+| `entryQuestion` | the question they picked on the landing page |
+| `usedCalculator` | whether they opened the cost calculator |
+| `calculatorInputs` | their last calculator settings, or `null` |
+| `timeSpentSeconds` | total time in the tool |
+| `sessionToken` | anonymous id, not tied to any identity |
+
+That context exists so the agent can open with something specific rather than a blank prompt — someone who spent their visit in the money thread and ran the calculator should get a different opening than someone who only read the basics.
+
+Three things worth passing along to whoever builds it:
+
+- **No personal information is available here, by design.** Please keep it that way.
+- **Use the existing CSS variables** (`--ink`, `--card`, `--pine`, etc.) and wrap font sizes in `calc(Npx * var(--text-scale, 1))`. The agent then inherits the text-size control and high-contrast mode automatically.
+- **Ground it in the real page content** exported from `data/pages.ts`. The rest of the tool cites actual sources and flags anything unvalidated; an agent inventing rebate amounts would undercut that.
+
 ## Link order randomization
 
 The "What would you like to learn next?" links on every page are shown in a randomized order, seeded per session and page. This means one visitor sees a consistent order throughout their visit (no links jumping around mid-read), but different visitors see different orders — so if the research data later shows one link getting clicked more than others, it reflects genuine interest rather than the fact that it happened to be listed first.
