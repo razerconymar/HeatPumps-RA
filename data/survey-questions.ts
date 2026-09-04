@@ -1,197 +1,136 @@
 // ─────────────────────────────────────────────────────────────
 // SURVEY QUESTIONS
 //
-// ⚠ PLACEHOLDER SET. These are working stand-ins adapted from the
-// project's Focus Group Handout. Replace them when the finalized
-// questions arrive. This is the ONLY file that needs editing — the
-// survey screens build themselves from whatever is defined here.
+// Source: "Individual DST Webpage Content" document, which
+// specifies the pre-landing-page survey items and names the
+// intended dependent variables for the end-of-survey block:
+// intent to adopt, feeling prepared to make an informed
+// decision, and trust in the DST information.
+//
+// Design note from that document: pages viewed is also treated
+// as a dependent variable. That is captured automatically by the
+// tool's own tracking, so it is not asked as a question here.
 //
 // ─────────────────────────────────────────────────────────────
 // HOW TO ADD OR CHANGE A QUESTION
 // ─────────────────────────────────────────────────────────────
 //
 // Add an entry to preQuestions or postQuestions. Five types are
-// available, and each renders its own input automatically:
+// available, each rendering its own input automatically:
 //
-//   "likert"     1-5 scale. Needs scaleLabels: [lowEnd, highEnd].
-//
+//   "likert"     Numeric scale. Needs scaleLabels: [low, high].
+//                Defaults to 1-5. Pass scale: [-2,-1,0,1,2] for
+//                an agree/disagree scale.
 //   "single"     Pick one. Needs options: [...].
+//   "rank"       Assign 1..n, each number usable once.
+//   "magnitude"  A number box per option, for multipliers.
+//   "text"       Free response.
 //
-//   "rank"       Assign 1..n, each number usable only once.
-//                Needs options: [...]. Good for "order these".
+// Every question needs a unique id and a prompt. Optional:
+// help (grey text under the prompt), optional: true.
 //
-//   "magnitude"  A number box per option, for multipliers like
-//                "1.25x". Needs options: [...].
-//
-//   "text"       Free response box.
-//
-// Every question needs a unique  id  and a  prompt.
-// Optional extras:  help  (small grey text under the prompt),
-//                   optional: true  (skips the required check).
-//
-// EXAMPLE — adding a new 1-5 question to the pre-survey:
-//
-//   {
-//     id: "own_or_rent",
-//     type: "single",
-//     prompt: "Do you own or rent your home?",
-//     options: ["Own", "Rent", "Other"],
-//   },
-//
-// ─────────────────────────────────────────────────────────────
-// IMPORTANT FOR THE BEFORE/AFTER COMPARISON
-// ─────────────────────────────────────────────────────────────
-//
-// Any question you want to compare before vs. after must appear in
-// BOTH preQuestions and postQuestions with the SAME id. The CSV
-// export then places them side by side as pre_<id> and post_<id>.
-// Questions that only make sense once (like "how easy was this
-// tool to use") belong in postQuestions only.
-//
-// Keep the post-survey short. Repeat only what you need to
-// compare — long exit surveys are where people give up.
+// IMPORTANT: to compare a question before vs. after, it must
+// appear in BOTH lists with the SAME id. The CSV export then
+// places them side by side as pre_<id> and post_<id>.
 // ─────────────────────────────────────────────────────────────
 
 export type QuestionType =
-  | "rank"        // assign 1..n ordering of fixed options
-  | "magnitude"   // numeric multiplier vs. a baseline the user picks
-  | "likert"      // 1-5 scale
-  | "single"      // pick one
-  | "text";       // free response
+  | "rank"
+  | "magnitude"
+  | "likert"
+  | "single"
+  | "text";
 
 export interface Question {
   id: string;
   type: QuestionType;
   prompt: string;
   help?: string;
-  options?: string[];      // for rank / single
-  scaleLabels?: [string, string]; // for likert: low end, high end
+  options?: string[];
+  scaleLabels?: [string, string];
+  scale?: number[];
   optional?: boolean;
 }
 
-// The four systems compared throughout the study and the tool.
-export const SYSTEMS = [
-  "Electric furnace + air conditioner",
-  "Heat pump (heating and cooling)",
-  "Natural gas furnace + air conditioner",
-  "Propane heating + air conditioner",
-];
+// Agreement scale used by the "good investment" item.
+const AGREE_SCALE = [-2, -1, 0, 1, 2];
 
 // ── PRE-SURVEY ───────────────────────────────────────────────
+// Asked before the participant reaches the landing page.
 
 export const preQuestions: Question[] = [
   {
-    id: "familiarity_costs",
+    id: "interest",
     type: "likert",
     prompt:
-      "How familiar are you with what it costs to heat and cool your home each month?",
-    scaleLabels: ["Not at all familiar", "Extremely familiar"],
+      "On a scale of 1 to 5, how interested are you in purchasing a heat pump for your home?",
+    scaleLabels: ["Not at all interested", "Extremely interested"],
   },
   {
-    id: "familiarity_heatpumps",
+    id: "knowledge",
     type: "likert",
-    prompt: "How familiar are you with heat pumps?",
-    scaleLabels: ["Not at all familiar", "Extremely familiar"],
+    prompt: "On a scale of 1 to 5, how knowledgeable about heat pumps are you?",
+    scaleLabels: ["Not at all knowledgeable", "Extremely knowledgeable"],
   },
   {
-    id: "rank_energy",
-    type: "rank",
+    id: "good_investment",
+    type: "likert",
     prompt:
-      "Rank these four systems by how much energy they use, for the same 2,000 square foot home.",
-    help: "1 = uses the least energy, 4 = uses the most energy.",
-    options: SYSTEMS,
-  },
-  {
-    id: "magnitude_energy",
-    type: "magnitude",
-    prompt: "How much more energy do the others use compared to your #1?",
-    help:
-      "Your #1 from the last question is the baseline. If you think something uses 25% more energy, enter 1.25. Twice as much, enter 2.",
-    options: SYSTEMS,
-  },
-  {
-    id: "rank_cost",
-    type: "rank",
-    prompt: "Now rank the same four systems by cost to operate.",
-    help: "1 = least expensive to run, 4 = most expensive to run.",
-    options: SYSTEMS,
-  },
-  {
-    id: "rank_emissions",
-    type: "rank",
-    prompt: "Rank the same four systems by greenhouse gas emissions.",
-    help: "1 = fewest emissions, 4 = most emissions.",
-    options: SYSTEMS,
-  },
-  {
-    id: "priority",
-    type: "single",
-    prompt:
-      "If you were considering a heat pump, which would matter most to you?",
-    options: [
-      "Upfront installation cost",
-      "Monthly operating cost",
-      "Performance in cold weather",
-      "Environmental impact",
-      "Indoor air quality and safety",
-      "Finding a contractor I trust",
-    ],
+      "How much do you agree with the following statement: Heat pumps are a good investment.",
+    scale: AGREE_SCALE,
+    scaleLabels: ["Strongly disagree", "Strongly agree"],
   },
 ];
 
 // ── POST-SURVEY ──────────────────────────────────────────────
-// Repeats only the comparable knowledge questions, plus a short
-// usability block. Kept deliberately brief so people finish it.
+// Repeats the three pre items so change can be measured, then
+// adds the end-of-survey dependent variables named in the
+// source document.
 
 export const postQuestions: Question[] = [
   {
-    id: "rank_energy",
-    type: "rank",
-    prompt:
-      "Same question as before: rank these four systems by how much energy they use.",
-    help: "1 = uses the least energy, 4 = uses the most energy.",
-    options: SYSTEMS,
-  },
-  {
-    id: "magnitude_energy",
-    type: "magnitude",
-    prompt: "How much more energy do the others use compared to your #1?",
-    help:
-      "Same as before. If you think something uses 25% more energy, enter 1.25.",
-    options: SYSTEMS,
-  },
-  {
-    id: "rank_cost",
-    type: "rank",
-    prompt: "Rank the four systems by cost to operate.",
-    help: "1 = least expensive to run, 4 = most expensive to run.",
-    options: SYSTEMS,
-  },
-  {
-    id: "rank_emissions",
-    type: "rank",
-    prompt: "Rank the four systems by greenhouse gas emissions.",
-    help: "1 = fewest emissions, 4 = most emissions.",
-    options: SYSTEMS,
-  },
-  {
-    id: "confidence_change",
+    id: "interest",
     type: "likert",
     prompt:
-      "How confident do you feel making a decision about a heat pump now?",
-    scaleLabels: ["Not at all confident", "Extremely confident"],
+      "Now that you have explored the tool: how interested are you in purchasing a heat pump for your home?",
+    scaleLabels: ["Not at all interested", "Extremely interested"],
   },
   {
-    id: "ease_of_use",
+    id: "knowledge",
     type: "likert",
-    prompt: "How easy was this tool to navigate?",
-    scaleLabels: ["Very difficult", "Very easy"],
+    prompt: "How knowledgeable about heat pumps do you feel now?",
+    scaleLabels: ["Not at all knowledgeable", "Extremely knowledgeable"],
+  },
+  {
+    id: "good_investment",
+    type: "likert",
+    prompt:
+      "How much do you agree with the following statement: Heat pumps are a good investment.",
+    scale: AGREE_SCALE,
+    scaleLabels: ["Strongly disagree", "Strongly agree"],
+  },
+  {
+    id: "intent_to_adopt",
+    type: "likert",
+    prompt:
+      "How likely are you to consider installing a heat pump in the next few years?",
+    scaleLabels: ["Not at all likely", "Extremely likely"],
+  },
+  {
+    id: "prepared",
+    type: "likert",
+    prompt:
+      "How much do you agree: I feel more prepared to make an informed decision about heat pumps.",
+    scale: AGREE_SCALE,
+    scaleLabels: ["Strongly disagree", "Strongly agree"],
   },
   {
     id: "trust",
     type: "likert",
-    prompt: "How much did you trust the information in this tool?",
-    scaleLabels: ["Not at all", "Completely"],
+    prompt:
+      "How much do you agree: I trust the information presented in this tool.",
+    scale: AGREE_SCALE,
+    scaleLabels: ["Strongly disagree", "Strongly agree"],
   },
   {
     id: "missing",

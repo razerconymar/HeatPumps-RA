@@ -28,9 +28,9 @@ export default function SurveyEntry() {
           Thanks for helping with our research
         </h1>
         <p className="hero-lede" style={{ marginBottom: 20 }}>
-          This takes about 20 minutes total, in three parts: a few questions
-          about what you think now, then time to explore the tool however you
-          like, then a few short questions at the end.
+          Three quick parts: a few questions about what you think now, then time
+          to explore the tool however you like, then a short set of questions
+          at the end.
         </p>
 
         <div className="study-steps">
@@ -39,8 +39,8 @@ export default function SurveyEntry() {
             <div>
               <div className="study-step-title">A few questions first</div>
               <div className="study-step-desc">
-                About 5 minutes. There are no right or wrong answers, we just
-                want to know what you think today.
+                Just three questions. There are no right or wrong answers, we
+                only want to know what you think today.
               </div>
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function SurveyEntry() {
             <div>
               <div className="study-step-title">A few questions at the end</div>
               <div className="study-step-desc">
-                About 3 minutes, including some of the same questions again.
+                A few minutes, including the same three questions again.
               </div>
             </div>
           </div>

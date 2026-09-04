@@ -83,6 +83,7 @@ export default function Survey({
                   <LikertInput
                     value={answers[q.id] as number | undefined}
                     labels={q.scaleLabels ?? ["Low", "High"]}
+                    scale={q.scale}
                     onChange={(n) => set(q.id, n)}
                   />
                 )}
@@ -148,25 +149,28 @@ export default function Survey({
 function LikertInput({
   value,
   labels,
+  scale,
   onChange,
 }: {
   value: number | undefined;
   labels: [string, string];
+  scale?: number[];
   onChange: (n: number) => void;
 }) {
+  const points = scale ?? [1, 2, 3, 4, 5];
   return (
     <div className="likert">
       <span className="likert-end">{labels[0]}</span>
       <div className="likert-scale">
-        {[1, 2, 3, 4, 5].map((n) => (
+        {points.map((n) => (
           <button
             key={n}
             className={"likert-btn" + (value === n ? " on" : "")}
             onClick={() => onChange(n)}
             aria-pressed={value === n}
-            aria-label={`${n} out of 5`}
+            aria-label={`${n}`}
           >
-            {n}
+            {n > 0 && points.some((p) => p < 0) ? `+${n}` : n}
           </button>
         ))}
       </div>
