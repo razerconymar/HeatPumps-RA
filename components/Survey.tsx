@@ -224,7 +224,7 @@ function RankInput({
       if (next[k] === rank) delete next[k];
     }
     if (next[option] === rank) {
-      delete next[option]; // tapping again clears it
+      delete next[option];
     } else {
       next[option] = rank;
     }
@@ -258,7 +258,7 @@ function RankInput({
   );
 }
 
-// ── magnitude: multiplier vs. the user's own #1 ──────────────
+// ──  multiplier vs. the user's own #1 ──────────────
 
 function MagnitudeInput({
   options,
