@@ -1,22 +1,5 @@
 // ─────────────────────────────────────────────────────────────
 // Heat Pump DST — Calculator engine (Basic Mode)
-//
-// Implements the degree-day model from the Calculator Design
-// doc: Q = UA × DD × 24, with insulation / ceiling / thermostat
-// multipliers, fuel conversion equations, cost, and GHG.
-//
-// CALIBRATION: BaseUA is tuned so that a 2,000 sq ft, average-
-// insulation home in an average Indiana weather year lands at
-// ~60 MMBTU heating and ~15 MMBTU cooling, matching the Energy
-// Comparison Estimates document.
-//
-// DATA STATUS: All prices, emission factors, and install costs
-// below are PLACEHOLDER DEFAULTS pending validation against:
-//   Prices      → EIA (eia.gov/electricity, /naturalgas, propane)
-//   Weather     → NOAA Climate Normals (HDD/CDD by county)
-//   HP curves   → NEEP ccASHP database (ashp.neep.org)
-//   Emissions   → EPA eGRID + GHG Emission Factors Hub
-//   Incentives  → DSIRE (dsireusa.org)
 // ─────────────────────────────────────────────────────────────
 
 export type HomeSize = "small" | "medium" | "large" | "custom";
@@ -26,26 +9,20 @@ export type Weather = "mild" | "average" | "extreme";
 export type Baseline = "gas" | "propane" | "electric";
 export type HeatPumpType = "ashp" | "ccashp" | "gshp";
 
-// Sensitivity scenarios per the Calculator Design doc:
-//   "Electricity prices stay the same and natural gas increases; or
-//    Electricity prices increase and natural gas stays the same."
-// Escalation rate of 3%/yr is a round assumption in line with recent
-// EIA residential price trends; adjust when validated further.
 export type PriceScenario = "flat" | "fossilUp" | "elecUp";
 const ESCALATION = 0.03;
 
 export interface CalcInputs {
   size: HomeSize;
-  customSqft: number; // used when size === "custom"
+  customSqft: number; 
   insulation: Insulation;
   ceiling: Ceiling;
-  indoorTemp: number; // winter setpoint, 64–74
+  indoorTemp: number; 
   weather: Weather;
   baseline: Baseline;
   scenario: PriceScenario;
 }
 
-// ── constants (placeholder defaults, sources noted above) ──
 
 const SQFT: Record<Exclude<HomeSize, "custom">, number> = {
   small: 1200,
@@ -65,11 +42,11 @@ const INSULATION_MULT: Record<Insulation, number> = {
   excellent: 0.7,
 };
 
-// Calibrated so medium/average/average-year ≈ 60 MMBTU heating, 15 cooling
-const BASE_UA_HEAT = 455; // BTU/hr·°F at 2000 sqft, average insulation
+
+const BASE_UA_HEAT = 455; 
 const BASE_UA_COOL = 625;
 
-// Seasonal efficiencies (Energy Comparison Estimates midpoints)
+
 const SYSTEMS = {
   gas: { label: "Natural gas furnace + AC", afue: 0.9 },
   propane: { label: "Propane heat + AC", afue: 0.9 },
@@ -80,33 +57,12 @@ const SYSTEMS = {
 };
 const BASELINE_AC_SEER2 = 14;
 
-// Prices — VALIDATED August 2026 against public sources:
-//   Electricity: EIA-reported Indiana residential all-in average
-//     ~17.9c/kWh (April 2026 reporting, priceofelectricity.com
-//     citing EIA), corroborated 16.19-19c range across sources.
-//   Natural gas: IURC February 2026 Residential Survey, blended
-//     across major Indiana utilities at the 250-therm tier
-//     (in.gov/iurc), roughly $1.00-1.61/therm all-in by utility.
-//   Propane: EIA Weekly Heating Oil and Propane Survey, Indiana
-//     residential $2.634/gal, week ending 3/30/2026.
+
 const PRICE = { elecPerKwh: 0.17, gasPerTherm: 1.15, propanePerGal: 2.63 };
 
-// Emission factors — PLACEHOLDER, validate against EPA eGRID / EF Hub
 const EF = { elecLbPerKwh: 1.4, gasLbPerTherm: 11.7, propaneLbPerGal: 12.7 };
 
-// Installed cost estimates — VALIDATED August 2026 against public
-// Indiana-market and national sources, blended toward Indiana-
-// specific figures where available:
-//   Armor Air (Indianapolis): heat pump $4,500-$10,500
-//   HomeSense (Indiana): full HVAC replacement $5,000-$12,000
-//   Angi (Indianapolis): heat pump avg $5,433 ($3,970-$6,970)
-//   Modernize (national, 56k projects): full system $11,590-$14,100
-//   HVACLoadCalculate (national): ASHP $8,000-$15,000
-//   Geothermal: DOE/industry consensus $20,000-$35,000 installed
-// These remain rough planning estimates, not quotes — a real
-// installer quote depends on ductwork, electrical, and home
-// specifics this calculator can't see. Rebates (see the rebates
-// page) are not subtracted here; they apply on top of these figures.
+
 const INSTALL: Record<Baseline | HeatPumpType, number> = {
   gas: 10000,
   propane: 10000,
@@ -122,14 +78,14 @@ export interface SystemResult {
   id: Baseline | HeatPumpType;
   label: string;
   annualMmbtu: number;
-  pctVsBaseline: number; // negative = uses less energy
+  pctVsBaseline: number; 
   annualCost: number;
   monthlyCost: number;
-  monthlyDelta: number; // vs baseline, negative = cheaper
+  monthlyDelta: number; 
   annualCo2Tons: number;
   installCost: number;
   fifteenYearTotal: number;
-  breakevenMonth: number | null; // null = never within 15 yrs (or cheaper from day one)
+  breakevenMonth: number | null; 
 }
 
 export interface CalcResults {
@@ -143,12 +99,12 @@ export function runCalculator(inputs: CalcInputs): CalcResults {
   const sqft = inputs.size === "custom" ? inputs.customSqft : SQFT[inputs.size];
   const w = WEATHER[inputs.weather];
 
-  // UA adjusted by floor area, insulation, ceiling volume
+ 
   const areaMult = sqft / 2000;
   const ceilMult = inputs.ceiling === 10 ? 1.25 : 1.0;
   const insMult = INSULATION_MULT[inputs.insulation];
 
-  // Thermostat: ±2.5% heating demand per °F from 68 (opposite for cooling)
+ 
   const tempDelta = inputs.indoorTemp - 68;
   const heatTempMult = 1 + 0.025 * tempDelta;
   const coolTempMult = 1 - 0.025 * tempDelta;
@@ -162,7 +118,7 @@ export function runCalculator(inputs: CalcInputs): CalcResults {
   // ── per-system energy, cost, emissions ──
 
   function coolingKwh(seer2: number): number {
-    return coolingBtu / (seer2 * 1000); // SEER2 = BTU per Wh
+    return coolingBtu / (seer2 * 1000); 
   }
 
   function evalBaseline(b: Baseline): Omit<SystemResult, "pctVsBaseline" | "monthlyDelta" | "fifteenYearTotal" | "breakevenMonth"> {
@@ -221,9 +177,7 @@ export function runCalculator(inputs: CalcInputs): CalcResults {
     };
   }
 
-  // Escalation multipliers per year for each scenario.
-  // Electricity applies to HP costs and baseline cooling + electric heat;
-  // "fossil" applies to gas and propane heating costs.
+
   function yearMult(kind: "elec" | "fossil", year: number): number {
     const s = inputs.scenario;
     if (s === "flat") return 1;
