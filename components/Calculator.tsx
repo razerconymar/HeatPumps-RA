@@ -38,7 +38,6 @@ export default function Calculator({
   // reference what the person actually entered.
   useEffect(() => {
     onInputsChange?.(inputs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputs]);
   const set = <K extends keyof CalcInputs>(k: K, v: CalcInputs[K]) =>
     setInputs((prev) => ({ ...prev, [k]: v }));
