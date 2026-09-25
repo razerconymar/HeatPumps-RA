@@ -3,14 +3,8 @@
 // ═════════════════════════════════════════════════════════════
 // AGENT INTEGRATION SLOT
 //
-// This file is the ONLY place the conversational agent needs to
-// be wired in. Everything else in the app stays untouched.
-//
-// Right now it renders a visible placeholder. Replace the marked
-// section below with the real agent UI.
-//
 // ─────────────────────────────────────────────────────────────
-// WHAT YOU GET (props, all optional to use)
+// WHAT YOU GET 
 // ─────────────────────────────────────────────────────────────
 //
 //   context.pagesVisited   string[]  page codes in visit order,
@@ -44,12 +38,6 @@
 //   --pine, etc.) and wrap font sizes in
 //   calc(Npx * var(--text-scale, 1)), the agent will inherit both
 //   automatically.
-//
-// • Content accuracy matters here. The rest of the tool cites
-//   real sources (EIA, IURC, Duke Energy, SCI REMC) and flags
-//   anything unvalidated. An agent that invents rebate amounts or
-//   cost figures would undercut that. Worth grounding it in the
-//   same page content, which is exported from data/pages.ts.
 //
 // • If the agent needs to log conversations for research, add a
 //   logger alongside the existing ones in lib/instrumentation.ts
