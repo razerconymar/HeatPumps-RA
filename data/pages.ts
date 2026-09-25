@@ -1,25 +1,14 @@
 // ─────────────────────────────────────────────────────────────
 // Heat Pump DST - Page graph
-//
-// Structure follows the DST Storyboard & Navigation doc exactly:
-// alphanumeric page codes, landing page question links, and
-// "What would you like to learn next?" navigation on every page.
-// Content is drawn from the Individual DST Webpage Content doc.
-// Where that doc reuses pages (e.g., 6B repackages 2C), links
-// point to the original code per the storyboard's reuse rule.
-//
-// Body convention: plain paragraphs; lines starting with "## "
-// render as subheadings; lines starting with "- " render as
-// list items.
 // ─────────────────────────────────────────────────────────────
 
-export const CALC = "CALC"; // 8B/8C combined calculator
+export const CALC = "CALC"; 
 export const LANDING = "0A";
-export const EXPLORE = "0A2"; // secondary landing ("progressing, not starting over")
+export const EXPLORE = "0A2"; 
 
 export interface PageLink {
   label: string;
-  target: string; // page code, CALC, or EXPLORE
+  target: string; 
 }
 
 export interface Page {
@@ -31,7 +20,7 @@ export interface Page {
 }
 
 export const pages: Record<string, Page> = {
-  // ── 1A thread: money ──────────────────────────────────────
+  // ──  money ──────────────────────────────────────
 
   "1A": {
     code: "1A",
@@ -156,7 +145,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 2A thread: how they work ──────────────────────────────
+  // ──  how they work ──────────────────────────────
 
 
   "2A": {
@@ -260,7 +249,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 3A thread: urgent replacement ─────────────────────────
+  // ──  urgent replacement ─────────────────────────
 
   "3A": {
     code: "3A",
@@ -349,7 +338,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 4A thread: mixed things / myths ───────────────────────
+  // ──  mixed things / myths ───────────────────────
 
   "4A": {
     code: "4A",
@@ -465,7 +454,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 5A thread: environment ────────────────────────────────
+  // ──  environment ────────────────────────────────
 
   "5A": {
     code: "5A",
@@ -588,7 +577,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 6A thread: beginners (reuses 2x pages per storyboard) ──
+  // ──  beginners (reuses 2x pages per storyboard) ──
 
   "6A": {
     code: "6A",
@@ -606,7 +595,7 @@ export const pages: Record<string, Page> = {
     ],
   },
 
-  // ── 7A: installer ─────────────────────────────────────────
+  // ── installer ─────────────────────────────────────────
 
   "7A": {
     code: "7A",
@@ -671,8 +660,7 @@ export const pages: Record<string, Page> = {
   },
 };
 
-// ── Landing page (0A) - per storyboard, "How do heat pumps
-//    work?" is the first button ──────────────────────────────
+// ── Landing page (0A)  ──────────────────────────────
 
 export const landingLinks: PageLink[] = [
   { label: "How do heat pumps work?", target: "2A" },
@@ -684,7 +672,7 @@ export const landingLinks: PageLink[] = [
   { label: "I'm an HVAC installer/contractor", target: "7A" },
 ];
 
-// ── Secondary landing (progress, don't restart) ─────────────
+// ── Secondary landing  ─────────────
 
 export const exploreLinks: PageLink[] = [
   { label: "How do I save money with a heat pump?", target: "1A" },
@@ -699,7 +687,7 @@ export const exploreLinks: PageLink[] = [
   { label: "Are heat pumps good for the planet?", target: "5B" },
 ];
 
-// ── Persistent navigation (0B) ──────────────────────────────
+// ── Persistent navigation  ──────────────────────────────
 
 export const persistentNav = [
   {
@@ -728,7 +716,7 @@ export function getPage(code: string): Page | undefined {
 }
 
 
-// ── Threads (for "where am I" progress hints) ───────────────
+// ──  (for "where am I" progress hints) ───────────────
 
 export const threads: Record<string, { name: string; order: string[]; color: string }> = {
   "1": { name: "Money path", order: ["1A", "1B", "1C", "1D", "1E"], color: "#a85817" },
@@ -751,8 +739,6 @@ export function threadInfo(
 }
 
 export function threadColor(code: string): string | null {
-  // Utility destinations get their own consistent accents so every
-  // card has a colored bar rather than some appearing unstyled.
   if (code === CALC) return "#2f6f7a";
   if (code === "FIND_REBATES") return "#8a5a2b";
   if (code === "FIND_CONTRACTORS") return "#4a5568";
@@ -783,8 +769,6 @@ export function readingTime(page: Page): string {
 
 
 // ── Micro-survey questions per thread ────────────────────────
-// Shown once, inline, when a user reaches the last page of a
-// thread. Lightweight and dismissible, not a blocking popup.
 
 export const threadSurveys: Record<string, string> = {
   "1": "Does this change how you think about affording a heat pump?",
