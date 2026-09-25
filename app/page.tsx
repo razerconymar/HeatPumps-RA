@@ -84,7 +84,6 @@ export default function Home() {
     null
   );
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  // "off" = casual visitor, no surveys. "pre" | "tool" | "done" = study mode.
   const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
     "off"
   );
@@ -101,7 +100,6 @@ export default function Home() {
       // clean the URL so a refresh doesn't restart the study
       window.history.replaceState({}, "", window.location.pathname);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Assemble the context handed to the conclusion page and agent.
@@ -141,7 +139,7 @@ export default function Home() {
   function pushTrail(target: string) {
     setTrail((t) => {
       const existing = t.findIndex((s) => s.code === target);
-      if (existing >= 0) return t.slice(0, existing + 1); // backtrack truncates
+      if (existing >= 0) return t.slice(0, existing + 1); 
       return [...t, { code: target, title: titleFor(target) }];
     });
   }
@@ -161,7 +159,7 @@ export default function Home() {
       setTrail([]);
       setView({ name: "landing" });
     } else {
-      // first click from the landing page identifies the entry thread
+      // first click from the landing page identifies the entry journey
       if (fromLanding && session.persona === null) {
         logPersona(session, target);
       }
@@ -436,7 +434,7 @@ export default function Home() {
   );
 }
 
-// ── Landing page (0A) ───────────────────────────────────────
+// ── Landing page  ───────────────────────────────────────
 
 function Landing({
   onNavigate,
@@ -480,7 +478,7 @@ function Landing({
   );
 }
 
-// ── Secondary landing (0A2) - progress, don't restart ───────
+// ── Secondary landing  ───────
 
 function Explore({ onNavigate }: { onNavigate: (t: string) => void }) {
   return (
@@ -698,7 +696,7 @@ function GlossaryBody({ body }: { body: string[] }) {
   return <>{out}</>;
 }
 
-// ── Stub page feedback capture ──────────────────────────────
+// ── feedback capture ──────────────────────────────
 
 function StubFeedbackForm({
   pageCode,
@@ -1001,7 +999,7 @@ function DataInfo() {
 }
 
 
-// ── Micro-survey (embedded, dismissible, once per thread) ──
+// ── Micro-survey (embedded, once per thread) ──
 
 function MicroSurvey({
   question,
@@ -1039,10 +1037,7 @@ function MicroSurvey({
 // research session, so nobody has to hunt for how to end.
 //
 // After a while a soft nudge appears alongside it. It is
-// dismissible and never blocks the screen: the participant
-// decides when they are done, so we do not truncate their
-// natural browsing behaviour, which is the main thing this
-// session is meant to observe.
+// dismissible and never blocks the screen
 
 const NUDGE_AFTER_PAGES = 10;
 
