@@ -1,8 +1,5 @@
 // ─────────────────────────────────────────────────────────────
 // Heat Pump DST — Content Architecture
-// Every module is tagged with its source per the traceability
-// requirement. Status: "validated" (grounded in sponsor briefing
-// or background memo) or "placeholder" (needs review).
 // ─────────────────────────────────────────────────────────────
 
 export type ModuleSource = "sponsor-briefing" | "background-memo" | "placeholder";
@@ -217,8 +214,7 @@ export const modules: ContentModule[] = [
 
 // ─────────────────────────────────────────────────────────────
 // Personas and guided flows
-// Each flow is an ordered card sequence per the Action Points
-// doc. Users can follow the sequence or branch via "related".
+// Each flow is an ordered card sequence per doc
 // ─────────────────────────────────────────────────────────────
 
 export interface Persona {
@@ -278,11 +274,6 @@ export function getModule(id: string): ContentModule | undefined {
 
 // ─────────────────────────────────────────────────────────────
 // Priority-driven flow personalization
-// Options drawn directly from the focus group instrument's
-// factor list (upfront cost, incentives, monthly costs, cold
-// weather performance, environment, process/contractors).
-// The chosen priority moves its modules to the front of the
-// segment's flow, and cost priorities insert the calculator.
 // ─────────────────────────────────────────────────────────────
 
 export interface Priority {
@@ -321,9 +312,6 @@ export const priorities: Priority[] = [
 
 export const CALCULATOR_STEP = "__calculator__";
 
-// Build a personalized flow: priority modules first (in priority
-// order), then the rest of the persona's flow, deduplicated.
-// Calculator inserted after the priority block when relevant.
 export function buildFlow(persona: Persona, priority: Priority | null): string[] {
   if (!priority) return [...persona.flow];
   const front = priority.modules.filter(
