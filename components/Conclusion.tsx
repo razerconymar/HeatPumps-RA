@@ -8,10 +8,6 @@ import AgentPanel, { AgentContext } from "./AgentPanel";
 // Shown at the very end of a visit, after the post-survey in a
 // research session or after the quick feedback question for a
 // casual visitor.
-//
-// Purpose: send people away with something concrete rather than a
-// dead end. Recaps what they covered, gives real next steps, and
-// hosts the conversational agent (see AgentPanel.tsx).
 // ─────────────────────────────────────────────────────────────
 
 export interface ConclusionProps {
