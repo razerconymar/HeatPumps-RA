@@ -6,10 +6,7 @@
 // Study design: pre-survey -> free exploration -> post-survey.
 // Everything runs inside this app, so pre answers, navigation
 // activity, and post answers all land in one record per person
-// and export together. No external survey tool required.
-//
-// Send participants to  /survey  rather than  /  so they get the
-// study flow. Casual visitors landing on  /  never see surveys.
+// and export together. 
 // ─────────────────────────────────────────────────────────────
 
 export default function SurveyEntry() {
