@@ -1,21 +1,5 @@
 // ─────────────────────────────────────────────────────────────
 // Minimum viable research instrumentation
-//
-// Implements exactly the six signals defined in the project's
-// research instrumentation spec, and nothing more:
-//   1. Persona selected at entry
-//   2. First module selected
-//   3. Full navigation path (ordered module ids)
-//   4. Drop-off point (last module before exit)
-//   5. Time per module (entry/exit timestamps)
-//   6. Self-reported clarity at session end
-//
-// Privacy constraints:
-//   - No PII. Sessions use an anonymous random token.
-//   - Data stays in the browser (localStorage) in v1.
-//     A later phase can POST the same payload to an endpoint.
-//   - All logging is synchronous-cheap (array pushes); no
-//     network calls during navigation.
 // ─────────────────────────────────────────────────────────────
 
 export interface ModuleVisit {
@@ -46,7 +30,7 @@ export interface MicroSurveyResponse {
 export interface SessionLog {
   sessionToken: string;
   startedAt: number;
-  source: string | null; // e.g. "qualtrics-focus-group", null = organic visit
+  source: string | null; 
   persona: string | null;
   firstModule: string | null;
   path: ModuleVisit[];
@@ -106,9 +90,6 @@ export function logStubFeedback(
   persist(session);
 }
 
-// Adopt an externally-supplied anonymous token (from the pre-survey
-// redirect) so survey responses and tool activity can be joined later.
-// Sanitized and length-capped since it arrives from a URL parameter.
 export function adoptSessionToken(session: SessionLog, token: string): void {
   const clean = token.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64);
   if (!clean) return;
@@ -160,7 +141,7 @@ function persist(session: SessionLog): void {
     all[session.sessionToken] = session;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   } catch {
-    // storage unavailable — fail silently, never break the journey
+    // storage unavailable 
   }
 }
 
