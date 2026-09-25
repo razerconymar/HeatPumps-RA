@@ -1,10 +1,4 @@
-// ─────────────────────────────────────────────────────────────
-// Deterministic per-session shuffle. Same session + same page
-// always sees the same order (no jarring re-shuffle mid-visit),
-// but different sessions see different orders, so click position
-// doesn't bias which "learn next" link looks most clicked in the
-// research data.
-// ─────────────────────────────────────────────────────────────
+
 
 export function seededShuffle<T>(arr: T[], seed: string): T[] {
   let h = 0;
