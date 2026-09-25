@@ -1,9 +1,9 @@
 :root {
   --ink: #1c2b26;
   --ink-soft: #4e5d57;
-  --ink-faint: #63706a; /* WCAG AA fix: was #7d8a84 (3.3:1), now 4.8:1+ */
-  --warm-text: #a85817; /* AA-safe variant of --warm for use as text (5.16:1) */
-  --cool-text: #2f5f89; /* AA-safe variant of --cool for pill text (5.68:1 on cool-soft) */
+  --ink-faint: #63706a;
+  --warm-text: #a85817; 
+  --cool-text: #2f5f89; 
   --paper: #f6f7f4;
   --card: #ffffff;
   --line: #dde3df;
@@ -358,7 +358,7 @@ h1, h2, h3 {
 }
 .stat-label { font-size: calc(12px * var(--text-scale, 1)); color: var(--ink-faint); line-height: 1.35; }
 
-/* ── Topbar + persistent nav (0B) ── */
+/* ── Topbar + persistent nav ── */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -466,7 +466,7 @@ h1, h2, h3 {
 .menu-link svg { flex-shrink: 0; opacity: 0.75; }
 .menu-link:hover { color: var(--warm); }
 
-/* ── Next links (storyboard "learn next" pattern) ── */
+/* ── Next links ── */
 .next-links { display: grid; gap: 8px; }
 .next-link {
   position: relative;
@@ -508,7 +508,7 @@ h1, h2, h3 {
 .body-list { margin: 0 0 14px 20px; }
 .body-list li { font-size: calc(15px * var(--text-scale, 1)); margin-bottom: 6px; color: var(--ink); }
 
-/* ── Journey rail (where am I?) ── */
+/* ── Journey (where am I?) ── */
 .layout { display: block; }
 @media (min-width: 1000px) {
   .shell { max-width: 1000px; }
@@ -569,7 +569,7 @@ h1, h2, h3 {
   margin-left: 2px;
 }
 
-/* Mobile: horizontal trail above content */
+/* Phones: horizontal above content */
 @media (max-width: 999px) {
   .journey-rail {
     border-left: none;
@@ -587,7 +587,7 @@ h1, h2, h3 {
   .journey-you { display: inline; margin-left: 6px; }
 }
 
-/* ── Thread progress hint ── */
+/* ── progress hint ── */
 .thread-hint {
   display: flex;
   align-items: center;
@@ -601,7 +601,7 @@ h1, h2, h3 {
 }
 .thread-hint svg { flex-shrink: 0; }
 
-/* ── Search ── */
+/* ── Search bar ── */
 .menu-search { grid-column: 1 / -1; }
 .search-input {
   width: 100%;
@@ -620,7 +620,7 @@ h1, h2, h3 {
 /* ── Print button ── */
 .print-row { margin-top: 18px; }
 
-/* ── Print stylesheet: only the page content prints ── */
+/* ── only the page content prints ── */
 @media print {
   .topbar, .menu-panel, .journey-rail, .related-block,
   .nav-row, .footer-note, .thread-hint, .print-row { display: none !important; }
@@ -630,7 +630,6 @@ h1, h2, h3 {
   body { background: #fff; }
 }
 
-/* ── Page meta row (thread + reading time) ── */
 .page-meta-row {
   display: flex;
   justify-content: space-between;
@@ -721,7 +720,7 @@ h1, h2, h3 {
   .chart-label { font-size: calc(11.5px * var(--text-scale, 1)); }
 }
 
-/* ── Stub feedback form ── */
+/* ── feedback form ── */
 .stub-feedback { flex-direction: column; align-items: flex-start; }
 .stub-form { width: 100%; margin-top: 10px; }
 .stub-label { display: block; font-size: calc(12.5px * var(--text-scale, 1)); font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
@@ -854,10 +853,8 @@ h1, h2, h3 {
 .nav-dropdown-link:hover { background: var(--paper); color: var(--pine-deep); }
 .nav-dropdown-link svg { flex-shrink: 0; opacity: 0.7; }
 
-/* Search sits after the nav bar, fixed width, not stretched */
 .topbar .topbar-search { flex: 0 0 220px; max-width: 220px; }
 
-/* Desktop: hide the mobile hamburger + panel entirely */
 .mobile-only { display: none; }
 
 @media (max-width: 860px) {
@@ -867,7 +864,6 @@ h1, h2, h3 {
   .menu-btn.mobile-only { display: inline-flex; }
 }
 
-/* ── High contrast mode ── */
 .high-contrast {
   --ink: #000000;
   --ink-soft: #1a1a1a;
@@ -978,10 +974,8 @@ h1, h2, h3 {
 }
 .a11y-switch.on .a11y-switch-knob { transform: translateX(16px); }
 
-/* Redundant coding: icons next to next-link labels */
 .next-link-label { display: flex; align-items: center; gap: 8px; }
 
-/* ── Setup warning (survey URLs not yet configured) ── */
 .setup-warning {
   background: var(--warm-soft);
   border: 1px solid #e8c9a0;
@@ -1074,7 +1068,6 @@ h1, h2, h3 {
 }
 .survey-error-summary { margin: 0 0 12px; text-align: right; }
 
-/* likert */
 .likert { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .likert-end {
   font-size: calc(12.5px * var(--text-scale, 1));
@@ -1277,7 +1270,7 @@ h1, h2, h3 {
   color: var(--ink-faint);
 }
 
-/* ── Study mode bar ── */
+/* ── Study mode ── */
 .study-bar {
   position: fixed;
   right: 20px;
@@ -1332,7 +1325,6 @@ h1, h2, h3 {
 }
 .study-nudge-close:hover { color: var(--ink); }
 
-/* Keep the fixed bar from covering page content at the bottom */
 .study-bar ~ .footer-note { padding-bottom: 70px; }
 
 @media (max-width: 600px) {
