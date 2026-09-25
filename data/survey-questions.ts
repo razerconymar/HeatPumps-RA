@@ -1,16 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 // SURVEY QUESTIONS
 //
-// Source: "Individual DST Webpage Content" document, which
-// specifies the pre-landing-page survey items and names the
-// intended dependent variables for the end-of-survey block:
-// intent to adopt, feeling prepared to make an informed
-// decision, and trust in the DST information.
-//
-// Design note from that document: pages viewed is also treated
-// as a dependent variable. That is captured automatically by the
-// tool's own tracking, so it is not asked as a question here.
-//
 // ─────────────────────────────────────────────────────────────
 // HOW TO ADD OR CHANGE A QUESTION
 // ─────────────────────────────────────────────────────────────
@@ -52,11 +42,9 @@ export interface Question {
   optional?: boolean;
 }
 
-// Agreement scale used by the "good investment" item.
 const AGREE_SCALE = [-2, -1, 0, 1, 2];
 
 // ── PRE-SURVEY ───────────────────────────────────────────────
-// Asked before the participant reaches the landing page.
 
 export const preQuestions: Question[] = [
   {
@@ -83,9 +71,6 @@ export const preQuestions: Question[] = [
 ];
 
 // ── POST-SURVEY ──────────────────────────────────────────────
-// Repeats the three pre items so change can be measured, then
-// adds the end-of-survey dependent variables named in the
-// source document.
 
 export const postQuestions: Question[] = [
   {
