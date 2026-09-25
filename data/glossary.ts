@@ -1,12 +1,10 @@
 // ─────────────────────────────────────────────────────────────
 // Inline glossary: jargon a homeowner will hit in page content
 // or when talking to a contractor, defined in plain language.
-// Terms are matched literally (case-sensitive, whole word) so
-// "Manual J" is caught but "manual" alone is not.
 // ─────────────────────────────────────────────────────────────
 
 export interface GlossaryEntry {
-  term: string; // exact string as it appears in content
+  term: string; 
   definition: string;
 }
 
@@ -43,8 +41,6 @@ export const glossary: GlossaryEntry[] = [
   },
 ];
 
-// Longest term first, so "Manual J" matches before a hypothetical
-// shorter overlapping term would.
 const sorted = [...glossary].sort((a, b) => b.term.length - a.term.length);
 const pattern = new RegExp(
   "\\b(" + sorted.map((g) => escapeRegExp(g.term)).join("|") + ")\\b",
@@ -83,11 +79,6 @@ export function definitionFor(term: string): string | undefined {
 }
 
 
-// ─────────────────────────────────────────────────────────────
-// Rich text: combines glossary term highlighting with automatic
-// link detection, so cited source URLs in page content render
-// as real clickable links instead of plain text.
-// ─────────────────────────────────────────────────────────────
 
 export interface RichSegment {
   type: "text" | "term" | "link";
