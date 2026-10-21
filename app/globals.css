@@ -1,9 +1,9 @@
 :root {
   --ink: #1c2b26;
   --ink-soft: #4e5d57;
-  --ink-faint: #63706a; /* WCAG AA fix: was #7d8a84 (3.3:1), now 4.8:1+ */
-  --warm-text: #a85817; /* AA-safe variant of --warm for use as text (5.16:1) */
-  --cool-text: #2f5f89; /* AA-safe variant of --cool for pill text (5.68:1 on cool-soft) */
+  --ink-faint: #63706a;
+  --warm-text: #a85817; /* --warm darkened to pass AA as text */
+  --cool-text: #2f5f89; /* --cool darkened to pass AA as text */
   --paper: #f6f7f4;
   --card: #ffffff;
   --line: #dde3df;
@@ -1343,4 +1343,245 @@ h1, h2, h3 {
 
 @media print {
   .study-bar { display: none !important; }
+}
+
+/* ── Calculator preset + incomplete state ── */
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.preset-hint {
+  font-size: calc(12.5px * var(--text-scale, 1));
+  color: var(--ink-faint);
+  line-height: 1.45;
+}
+.calc-incomplete {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  font-size: calc(13.5px * var(--text-scale, 1));
+  color: var(--ink-soft);
+}
+.calc-incomplete-count { color: var(--warm-text); font-weight: 600; }
+
+/* ── Study progress requirements ── */
+.study-progress {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 18px rgba(20, 61, 47, 0.12);
+  display: grid;
+  gap: 6px;
+  min-width: 250px;
+}
+.study-req {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: calc(12.5px * var(--text-scale, 1));
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.study-req.met { color: var(--pine-deep); font-weight: 500; }
+.study-req-mark {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+.study-req.met .study-req-mark { color: var(--pine); }
+
+.study-finish-btn:disabled {
+  background: var(--line);
+  color: var(--ink-faint);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.study-finish-btn:disabled:hover { background: var(--line); }
+
+/* ── Control condition: disabled rail steps ── */
+.journey-step:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.journey-step:disabled:hover { color: var(--ink-soft); }
+/* ── Calculator: engine additions ── */
+.calc-select {
+  font: inherit;
+  font-size: calc(14px * var(--text-scale, 1));
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  min-width: 220px;
+  max-width: 100%;
+}
+.calc-select:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+.calc-hint { font-size: calc(12px * var(--text-scale, 1)); color: var(--ink-faint); margin-top: 6px; }
+.result-detail {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: calc(13px * var(--text-scale, 1));
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.result-note { font-size: calc(12.5px * var(--text-scale, 1)); color: var(--ink-faint); }
+.calc-method {
+  margin-top: 16px;
+  font-size: calc(13px * var(--text-scale, 1));
+  color: var(--ink-soft);
+}
+.calc-method summary { cursor: pointer; font-weight: 600; color: var(--pine); }
+.calc-method ul { padding-left: 18px; line-height: 1.55; }
+
+/* ── Calculator widgets (components/viz) ──
+   Series colours validated with the dataviz palette checker (lightness, chroma, CVD ΔE 22, contrast ≥ 3:1). */
+:root {
+  --viz-current: #c96d1f;   /* current system */
+  --viz-hp: #3a7fc0;        /* heat pump */
+  --viz-backup: rgba(201, 109, 31, 0.16);
+  --viz-grid: #e8ece9;
+}
+.high-contrast {
+  --viz-current: #9a4a08;
+  --viz-hp: #1d5a96;
+  --viz-backup: rgba(154, 74, 8, 0.28);
+  --viz-grid: #b9c2bd;
+}
+.viz-stack { display: grid; gap: 16px; margin-top: 22px; }
+.viz-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: var(--card);
+}
+.viz-eyebrow {
+  font-size: calc(11px * var(--text-scale, 1));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.viz-title {
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: calc(16px * var(--text-scale, 1));
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.viz-sub { font-size: calc(13px * var(--text-scale, 1)); color: var(--ink-soft); margin: 0 0 10px; line-height: 1.5; }
+.viz-note { font-size: calc(12px * var(--text-scale, 1)); color: var(--ink-faint); margin: 8px 0 0; line-height: 1.45; }
+.viz-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: calc(12px * var(--text-scale, 1)); color: var(--ink-soft); margin-bottom: 4px; }
+.viz-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.viz-plot { position: relative; }
+.viz-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.viz-svg:focus-visible { outline: 2px solid var(--pine); outline-offset: 4px; border-radius: 6px; }
+.viz-grid { stroke: var(--viz-grid); stroke-width: 1; }
+.viz-baseline { stroke: var(--line); stroke-width: 1.25; }
+.viz-tick { font-size: 11px; fill: var(--ink-faint); }
+.viz-direct { font-size: 11.5px; fill: var(--ink-soft); font-weight: 600; }
+.viz-marker { font-size: 11.5px; fill: var(--ink); font-weight: 600; paint-order: stroke; stroke: var(--card); stroke-width: 4px; }
+.viz-crosshair { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; }
+.viz-tip {
+  position: absolute;
+  top: 8px;
+  min-width: 170px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(20, 40, 30, 0.12);
+  padding: 8px 10px;
+  font-size: calc(12px * var(--text-scale, 1));
+  pointer-events: none;
+  z-index: 2;
+}
+.viz-tip-head { font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+.viz-tip-row { display: flex; align-items: center; gap: 6px; line-height: 1.6; }
+.viz-tip-row strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.viz-tip-row span { color: var(--ink-faint); }
+.viz-tip-foot { margin-top: 4px; color: var(--ink-faint); }
+.viz-table { margin-top: 8px; font-size: calc(12.5px * var(--text-scale, 1)); }
+.viz-table summary { cursor: pointer; color: var(--pine); font-weight: 600; }
+.viz-table table { border-collapse: collapse; margin-top: 8px; width: 100%; font-variant-numeric: tabular-nums; }
+.viz-table th, .viz-table td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.viz-table th:first-child, .viz-table td:first-child { text-align: left; }
+.viz-rows { margin: 4px 0 0; }
+.viz-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid var(--line); font-size: calc(13px * var(--text-scale, 1)); }
+.viz-row:first-child { border-top: none; }
+.viz-row dt { color: var(--ink-soft); }
+.viz-row dd { margin: 0; font-weight: 600; color: var(--ink); text-align: right; }
+.viz-row.is-assumed dd { font-weight: 400; font-style: italic; color: var(--ink-soft); }
+.viz-tag {
+  font-style: normal;
+  font-size: calc(10.5px * var(--text-scale, 1));
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 1px 7px;
+  margin-left: 4px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  .viz-row { flex-direction: column; gap: 2px; }
+  .viz-row dd { text-align: left; }
+}
+
+/* ── Thermostat input (one setting or a range) ── */
+.calc-label-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.calc-label-row .calc-label { margin-bottom: 0; }
+.seg-row-sm { gap: 6px; }
+.seg-sm { font-size: calc(12px * var(--text-scale, 1)); padding: 5px 10px; border-radius: 8px; }
+.num-box { display: inline-flex; align-items: center; gap: 4px; font-size: calc(13.5px * var(--text-scale, 1)); color: var(--ink-soft); }
+.num-box input {
+  font: inherit; width: 4.2em; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums;
+}
+.num-box input:focus-visible { outline: 2px solid var(--pine); outline-offset: 1px; }
+.range-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px;
+  font-size: calc(13.5px * var(--text-scale, 1)); color: var(--ink-soft); }
+.stat-range { font-size: calc(11.5px * var(--text-scale, 1)); color: var(--ink-faint); margin-top: 2px; }
+
+/* ── Thermostat x price grid ── */
+:root { --viz-neutral: #eef0ed; }
+.high-contrast { --viz-neutral: #dde2de; }
+.heat-grid { display: grid; gap: 2px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.heat-corner, .heat-colhead { font-size: calc(11px * var(--text-scale, 1)); color: var(--ink-faint); text-align: center; padding: 4px 0; }
+.heat-corner { text-align: left; }
+.heat-colhead.is-you { color: var(--ink); font-weight: 700; }
+.heat-rowhead { font-size: calc(12px * var(--text-scale, 1)); color: var(--ink-soft); display: flex; align-items: center; padding-right: 6px; }
+.heat-rowhead.is-today { color: var(--ink); font-weight: 600; }
+.heat-cell {
+  font: inherit; font-size: calc(12px * var(--text-scale, 1)); font-weight: 600;
+  border: none; border-radius: 6px; padding: 10px 2px; min-height: 38px; cursor: default;
+}
+.heat-cell:hover, .heat-cell:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: -2px; }
+.heat-cell.is-you { box-shadow: inset 0 0 0 2px var(--ink); }
+.heat-swatch { display: inline-block; width: 14px; height: 10px; border-radius: 2px; }
+.heat-swatch.is-you { box-shadow: inset 0 0 0 2px var(--ink); background: var(--card); }
+.heat-readout { font-size: calc(12.5px * var(--text-scale, 1)); color: var(--ink-soft); margin: 10px 0 0; line-height: 1.5; }
+@media (max-width: 560px) {
+  .heat-cell { font-size: calc(10.5px * var(--text-scale, 1)); padding: 8px 0; }
+  .heat-rowhead { font-size: calc(11px * var(--text-scale, 1)); }
+}
+.heat-cell, .heat-colhead { white-space: nowrap; overflow: hidden; }
+.when-narrow { display: none; }
+@media (max-width: 560px) {
+  .when-wide { display: none; }
+  .when-narrow { display: inline; }
+}
+@media (max-width: 560px) {
+  .viz-card { padding: 14px 12px; }
+  .heat-grid { gap: 2px; }
+  .heat-cell { font-size: calc(10px * var(--text-scale, 1)); letter-spacing: -0.02em; padding: 8px 0; }
 }

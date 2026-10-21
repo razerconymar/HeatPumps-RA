@@ -1,16 +1,7 @@
 "use client";
 
-// ─────────────────────────────────────────────────────────────
-// Research participant entry point.
-//
-// Study design: pre-survey -> free exploration -> post-survey.
-// Everything runs inside this app, so pre answers, navigation
-// activity, and post answers all land in one record per person
-// and export together. No external survey tool required.
-//
-// Send participants to  /survey  rather than  /  so they get the
-// study flow. Casual visitors landing on  /  never see surveys.
-// ─────────────────────────────────────────────────────────────
+// Treatment condition entry point: pre-survey, free exploration, post-survey.
+// Visitors landing on / instead never see a survey.
 
 export default function SurveyEntry() {
   return (

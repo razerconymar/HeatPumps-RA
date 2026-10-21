@@ -1,23 +1,23 @@
 // ─────────────────────────────────────────────────────────────
-// Heat Pump DST — Calculator engine (Basic Mode)
+// Heat Pump DST — Calculator (Basic Mode)
 //
-// Implements the degree-day model from the Calculator Design
-// doc: Q = UA × DD × 24, with insulation / ceiling / thermostat
-// multipliers, fuel conversion equations, cost, and GHG.
+// Energy comes from the Indiana engine (lib/engine), a tested port of Riley's workbook
+// (Heat_Pump_Calculator.xlsx, Steps 1-5): county weather in 5°F ranges, a physics model of the
+// house, heat pump sizing, electric backup, and the three current systems.
 //
-// CALIBRATION: BaseUA is tuned so that a 2,000 sq ft, average-
-// insulation home in an average Indiana weather year lands at
-// ~60 MMBTU heating and ~15 MMBTU cooling, matching the Energy
-// Comparison Estimates document.
-//
-// DATA STATUS: All prices, emission factors, and install costs
-// below are PLACEHOLDER DEFAULTS pending validation against:
-//   Prices      → EIA (eia.gov/electricity, /naturalgas, propane)
-//   Weather     → NOAA Climate Normals (HDD/CDD by county)
-//   HP curves   → NEEP ccASHP database (ashp.neep.org)
-//   Emissions   → EPA eGRID + GHG Emission Factors Hub
-//   Incentives  → DSIRE (dsireusa.org)
+// Cost, CO₂, install cost and payback are still the simple placeholder layer from the previous
+// version of this file, now applied to the engine's kWh / therms / gallons. They get replaced by
+// Steps 6-8 (tariff bills, 15-year present value, eGRID/Cambium emissions).
 // ─────────────────────────────────────────────────────────────
+import { ENGINE_DATA } from "@/lib/engine-data";
+import {
+  DEFAULT_ASSUMPTIONS,
+  runEngine,
+  type Assumptions,
+  type CurrentSystem,
+  type EngineResult,
+  type WeatherYear,
+} from "@/lib/engine/index.ts";
 
 export type HomeSize = "small" | "medium" | "large" | "custom";
 export type Insulation = "poor" | "average" | "excellent";
@@ -25,287 +25,286 @@ export type Ceiling = 8 | 10;
 export type Weather = "mild" | "average" | "extreme";
 export type Baseline = "gas" | "propane" | "electric";
 export type HeatPumpType = "ashp" | "ccashp" | "gshp";
-
-// Sensitivity scenarios per the Calculator Design doc:
-//   "Electricity prices stay the same and natural gas increases; or
-//    Electricity prices increase and natural gas stays the same."
-// Escalation rate of 3%/yr is a round assumption in line with recent
-// EIA residential price trends; adjust when validated further.
 export type PriceScenario = "flat" | "fossilUp" | "elecUp";
-const ESCALATION = 0.03;
 
 export interface CalcInputs {
+  county: string;
   size: HomeSize;
-  customSqft: number; // used when size === "custom"
+  customSqft: number;
   insulation: Insulation;
   ceiling: Ceiling;
-  indoorTemp: number; // winter setpoint, 64–74
+  indoorTemp: number;             // winter thermostat, °F (low end when a range is given)
+  indoorTempHigh: number | null;  // high end of the winter range, or null for a single setting
+  coolTemp: number;               // summer thermostat, °F (low end when a range is given)
+  coolTempHigh: number | null;    // high end of the summer range, or null
   weather: Weather;
   baseline: Baseline;
+  hasCentralAC: boolean;
   scenario: PriceScenario;
 }
 
-// ── constants (placeholder defaults, sources noted above) ──
-
-const SQFT: Record<Exclude<HomeSize, "custom">, number> = {
-  small: 1200,
-  medium: 2000,
-  large: 3000,
+export const DEFAULT_CALC_INPUTS: CalcInputs = {
+  county: "Marion",
+  size: "medium",
+  customSqft: 2000,
+  insulation: "average",
+  ceiling: 8,
+  indoorTemp: 68,
+  indoorTempHigh: null,
+  coolTemp: 78,
+  coolTempHigh: null,
+  weather: "average",
+  baseline: "gas",
+  hasCentralAC: true,
+  scenario: "flat",
 };
 
-const WEATHER: Record<Weather, { hdd: number; cdd: number }> = {
-  mild: { hdd: 4800, cdd: 850 },
-  average: { hdd: 5500, cdd: 1000 },
-  extreme: { hdd: 6300, cdd: 1300 },
-};
+/**
+ * Engine settings for the site. Equal to the workbook today, so the site matches Riley's numbers.
+ * The team's open decisions (existing furnace AFUE, existing AC SEER2, outside shading, sizing) are
+ * changed here with withOverrides(), e.g. withOverrides({ sun: { exteriorShading: 0.7 } }).
+ */
+export const SITE_ASSUMPTIONS: Assumptions = DEFAULT_ASSUMPTIONS;
 
-const INSULATION_MULT: Record<Insulation, number> = {
-  poor: 1.3,
-  average: 1.0,
-  excellent: 0.7,
-};
-
-// Calibrated so medium/average/average-year ≈ 60 MMBTU heating, 15 cooling
-const BASE_UA_HEAT = 455; // BTU/hr·°F at 2000 sqft, average insulation
-const BASE_UA_COOL = 625;
-
-// Seasonal efficiencies (Energy Comparison Estimates midpoints)
-const SYSTEMS = {
-  gas: { label: "Natural gas furnace + AC", afue: 0.9 },
-  propane: { label: "Propane heat + AC", afue: 0.9 },
-  electric: { label: "Electric furnace + AC", cop: 1.0 },
-  ashp: { label: "Standard air-source heat pump", cop: 3.0, seer2: 15.2 },
-  ccashp: { label: "Cold-climate heat pump", cop: 2.9, seer2: 15.2 },
-  gshp: { label: "Ground-source (geothermal)", cop: 4.0, seer2: 18 },
-};
-const BASELINE_AC_SEER2 = 14;
-
-// Prices — VALIDATED August 2026 against public sources:
-//   Electricity: EIA-reported Indiana residential all-in average
-//     ~17.9c/kWh (April 2026 reporting, priceofelectricity.com
-//     citing EIA), corroborated 16.19-19c range across sources.
-//   Natural gas: IURC February 2026 Residential Survey, blended
-//     across major Indiana utilities at the 250-therm tier
-//     (in.gov/iurc), roughly $1.00-1.61/therm all-in by utility.
-//   Propane: EIA Weekly Heating Oil and Propane Survey, Indiana
-//     residential $2.634/gal, week ending 3/30/2026.
+// ── placeholder cost / emissions layer: statewide averages, not utility rates ──
+const ESCALATION = 0.03;
 const PRICE = { elecPerKwh: 0.17, gasPerTherm: 1.15, propanePerGal: 2.63 };
-
-// Emission factors — PLACEHOLDER, validate against EPA eGRID / EF Hub
 const EF = { elecLbPerKwh: 1.4, gasLbPerTherm: 11.7, propaneLbPerGal: 12.7 };
-
-// Installed cost estimates — VALIDATED August 2026 against public
-// Indiana-market and national sources, blended toward Indiana-
-// specific figures where available:
-//   Armor Air (Indianapolis): heat pump $4,500-$10,500
-//   HomeSense (Indiana): full HVAC replacement $5,000-$12,000
-//   Angi (Indianapolis): heat pump avg $5,433 ($3,970-$6,970)
-//   Modernize (national, 56k projects): full system $11,590-$14,100
-//   HVACLoadCalculate (national): ASHP $8,000-$15,000
-//   Geothermal: DOE/industry consensus $20,000-$35,000 installed
-// These remain rough planning estimates, not quotes — a real
-// installer quote depends on ductwork, electrical, and home
-// specifics this calculator can't see. Rebates (see the rebates
-// page) are not subtracted here; they apply on top of these figures.
 const INSTALL: Record<Baseline | HeatPumpType, number> = {
-  gas: 10000,
-  propane: 10000,
-  electric: 8500,
-  ashp: 10500,
-  ccashp: 13000,
-  gshp: 27000,
+  gas: 10000, propane: 10000, electric: 8500, ashp: 10500, ccashp: 13000, gshp: 27000,
 };
 
-// ── model ──────────────────────────────────────────────────
+const LABEL: Record<Baseline | "ashp", string> = {
+  gas: "Natural gas furnace",
+  propane: "Propane furnace",
+  electric: "Electric furnace",
+  ashp: "Standard air-source heat pump",
+};
+const ENGINE_SYSTEM: Record<Baseline, CurrentSystem> = {
+  gas: "Gas furnace + AC", propane: "Propane furnace + AC", electric: "Electric furnace + AC",
+};
+const ENGINE_YEAR: Record<Weather, WeatherYear> = { mild: "Mild", average: "Average", extreme: "Extreme" };
+const ENGINE_LEVEL = { poor: "Poor", average: "Average", excellent: "Excellent" } as const;
+const ENGINE_SIZE = { small: "Small", medium: "Medium", large: "Large", custom: "Exact" } as const;
 
 export interface SystemResult {
   id: Baseline | HeatPumpType;
   label: string;
-  annualMmbtu: number;
-  pctVsBaseline: number; // negative = uses less energy
+  kwh: number;
+  therms: number;
+  gallons: number;
+  annualMmbtu: number;      // site energy - supporting detail only, not a headline
+  pctVsBaseline: number;
   annualCost: number;
   monthlyCost: number;
-  monthlyDelta: number; // vs baseline, negative = cheaper
+  monthlyDelta: number;
   annualCo2Tons: number;
   installCost: number;
   fifteenYearTotal: number;
-  breakevenMonth: number | null; // null = never within 15 yrs (or cheaper from day one)
+  breakevenMonth: number | null;
 }
 
 export interface CalcResults {
   baseline: SystemResult;
   heatPumps: SystemResult[];
-  heatingLoadMmbtu: number;
+  heatingLoadMmbtu: number;   // at the rooms
   coolingLoadMmbtu: number;
+  /** Cumulative cost (install + energy) at the end of each year, 0..15, for the payback chart. */
+  timeline: { year: number; current: number; heatPump: number }[];
+  details: {
+    county: string;
+    station: string;
+    stationDistanceMi: number;
+    farFromStation: boolean;
+    weatherYear: string;
+    hpTons: number;
+    backupHeatShare: number;
+    designCoverage: number;
+    addsCooling: boolean;      // home has no central AC today
+    heatPumpCoolingKwh: number;
+  };
+  engine: EngineResult;
+  /** Thermostat settings actually used (the middle of any range). */
+  thermostat: { heat: number; cool: number };
+  /** When the person gave a thermostat range: results at the cheap and expensive ends of it. */
+  range: null | {
+    monthlyDelta: [number, number];       // heat pump minus current, $/month
+    fifteenYearGap: [number, number];     // heat pump minus current, 15-year total
+    baselineMonthly: [number, number];
+    heatPumpMonthly: [number, number];
+  };
+}
+
+/** A level change in energy prices held for 15 years (1 = today's placeholder price). */
+export interface PriceFactor { elec: number; fossil: number }
+const TODAY: PriceFactor = { elec: 1, fossil: 1 };
+
+/** Low and high ends of a thermostat input (equal when it is a single setting). */
+export function thermostatBounds(inputs: CalcInputs) {
+  const span = (lo: number, hi: number | null): [number, number] =>
+    hi === null ? [lo, lo] : [Math.min(lo, hi), Math.max(lo, hi)];
+  return { heat: span(inputs.indoorTemp, inputs.indoorTempHigh), cool: span(inputs.coolTemp, inputs.coolTempHigh) };
+}
+
+const engineCache = new Map<string, EngineResult>();
+function engineFor(inputs: CalcInputs, tHeat: number, tCool: number): EngineResult {
+  const key = [inputs.county, inputs.weather, inputs.size, inputs.customSqft, inputs.ceiling, inputs.insulation,
+    tHeat, tCool, inputs.baseline].join("|");
+  let r = engineCache.get(key);
+  if (!r) {
+    r = runEngine(ENGINE_DATA, {
+      county: inputs.county,
+      weather_year: ENGINE_YEAR[inputs.weather],
+      size: ENGINE_SIZE[inputs.size],
+      exact_area_sqft: inputs.customSqft,
+      ceiling_ft: inputs.ceiling,
+      level: ENGINE_LEVEL[inputs.insulation],
+      t_heat_f: tHeat,
+      t_cool_f: tCool,
+      current_system: ENGINE_SYSTEM[inputs.baseline],
+    }, SITE_ASSUMPTIONS);
+    if (engineCache.size > 300) engineCache.clear();
+    engineCache.set(key, r);
+  }
+  return r;
 }
 
 export function runCalculator(inputs: CalcInputs): CalcResults {
-  const sqft = inputs.size === "custom" ? inputs.customSqft : SQFT[inputs.size];
-  const w = WEATHER[inputs.weather];
+  const t = thermostatBounds(inputs);
+  const mid = { heat: (t.heat[0] + t.heat[1]) / 2, cool: (t.cool[0] + t.cool[1]) / 2 };
+  const main = computeAt(inputs, mid.heat, mid.cool, TODAY, inputs.scenario);
+  if (t.heat[0] === t.heat[1] && t.cool[0] === t.cool[1]) return main;
+  // Cheapest end: lowest winter setting + highest summer setting; costliest end: the reverse.
+  const lo = computeAt(inputs, t.heat[0], t.cool[1], TODAY, inputs.scenario);
+  const hi = computeAt(inputs, t.heat[1], t.cool[0], TODAY, inputs.scenario);
+  const pair = (f: (r: CalcResults) => number): [number, number] => {
+    const a = f(lo), b = f(hi);
+    return [Math.min(a, b), Math.max(a, b)];
+  };
+  return {
+    ...main,
+    range: {
+      monthlyDelta: pair((r) => r.heatPumps[0].monthlyDelta),
+      fifteenYearGap: pair((r) => r.heatPumps[0].fifteenYearTotal - r.baseline.fifteenYearTotal),
+      baselineMonthly: pair((r) => r.baseline.monthlyCost),
+      heatPumpMonthly: pair((r) => r.heatPumps[0].monthlyCost),
+    },
+  };
+}
 
-  // UA adjusted by floor area, insulation, ceiling volume
-  const areaMult = sqft / 2000;
-  const ceilMult = inputs.ceiling === 10 ? 1.25 : 1.0;
-  const insMult = INSULATION_MULT[inputs.insulation];
+/** Rows and columns of the thermostat x energy-price chart. */
+export const SENS_THERMOSTATS = [64, 66, 68, 70, 72, 74];
+export const SENS_PRICES: { label: string; factor: PriceFactor }[] = [
+  { label: "Gas/propane +30%", factor: { elec: 1, fossil: 1.3 } },
+  { label: "Gas/propane +15%", factor: { elec: 1, fossil: 1.15 } },
+  { label: "Today's prices", factor: TODAY },
+  { label: "Electricity +15%", factor: { elec: 1.15, fossil: 1 } },
+  { label: "Electricity +30%", factor: { elec: 1.3, fossil: 1 } },
+];
 
-  // Thermostat: ±2.5% heating demand per °F from 68 (opposite for cooling)
-  const tempDelta = inputs.indoorTemp - 68;
-  const heatTempMult = 1 + 0.025 * tempDelta;
-  const coolTempMult = 1 - 0.025 * tempDelta;
+/**
+ * 15-year cost difference (heat pump minus current system) for each winter thermostat setting and
+ * each level change in energy prices. Negative = the heat pump costs less. Prices are held flat for
+ * 15 years in this view (the escalation scenario buttons drive the payback chart instead).
+ */
+export function costSensitivity(inputs: CalcInputs) {
+  const cool = (thermostatBounds(inputs).cool[0] + thermostatBounds(inputs).cool[1]) / 2;
+  return SENS_PRICES.map((row) => ({
+    label: row.label,
+    cells: SENS_THERMOSTATS.map((tHeat) => {
+      const r = computeAt(inputs, tHeat, cool, row.factor, "flat");
+      return {
+        tHeat,
+        gap: r.heatPumps[0].fifteenYearTotal - r.baseline.fifteenYearTotal,
+        currentTotal: r.baseline.fifteenYearTotal,
+        heatPumpTotal: r.heatPumps[0].fifteenYearTotal,
+        monthlyDelta: r.heatPumps[0].monthlyDelta,
+      };
+    }),
+  }));
+}
 
-  const uaHeat = BASE_UA_HEAT * areaMult * insMult * ceilMult;
-  const uaCool = BASE_UA_COOL * areaMult * insMult * ceilMult;
+function computeAt(inputs: CalcInputs, tHeat: number, tCool: number, pf: PriceFactor,
+  scenario: PriceScenario): CalcResults {
+  const engine = engineFor(inputs, tHeat, tCool);
+  const P = { elecPerKwh: PRICE.elecPerKwh * pf.elec, gasPerTherm: PRICE.gasPerTherm * pf.fossil,
+    propanePerGal: PRICE.propanePerGal * pf.fossil };
 
-  const heatingBtu = uaHeat * w.hdd * 24 * heatTempMult;
-  const coolingBtu = uaCool * w.cdd * 24 * coolTempMult;
+  const eq = engine.equipment;
+  const kwhMm = SITE_ASSUMPTIONS.equipment.btuPerKwh / 1e6;
+  const acKwh = inputs.hasCentralAC ? eq.totals.acKwh : 0;
 
-  // ── per-system energy, cost, emissions ──
+  // ── current system: fuel for heat, electricity for AC (if any) and the furnace fan ──
+  const b = inputs.baseline;
+  const therms = b === "gas" ? eq.totals.gasTherms : 0;
+  const gallons = b === "propane" ? eq.totals.propaneGal : 0;
+  const baseKwh = (b === "electric" ? eq.totals.elecFurnaceKwh : 0) + acKwh + eq.fanKwh;
+  const baseFossilCost = therms * P.gasPerTherm + gallons * P.propanePerGal;
+  const baseElecCost = baseKwh * P.elecPerKwh;
+  const baseMmbtu = (therms * SITE_ASSUMPTIONS.equipment.btuPerTherm + gallons * SITE_ASSUMPTIONS.equipment.btuPerGallonPropane) / 1e6
+    + baseKwh * kwhMm;
+  const baseCo2Lb = therms * EF.gasLbPerTherm + gallons * EF.propaneLbPerGal + baseKwh * EF.elecLbPerKwh;
 
-  function coolingKwh(seer2: number): number {
-    return coolingBtu / (seer2 * 1000); // SEER2 = BTU per Wh
-  }
+  // ── standard heat pump: heating + electric backup + cooling ──
+  const hpKwh = eq.heatPumpKwh;
+  const hpCost = hpKwh * P.elecPerKwh;
 
-  function evalBaseline(b: Baseline): Omit<SystemResult, "pctVsBaseline" | "monthlyDelta" | "fifteenYearTotal" | "breakevenMonth"> {
-    const acKwh = coolingKwh(BASELINE_AC_SEER2);
-    let heatCost = 0;
-    let heatCo2 = 0;
-    let heatMmbtuIn = 0;
+  const yearMult = (kind: "elec" | "fossil", year: number) => {
+    if (scenario === "flat") return 1;
+    const rising = scenario === "fossilUp" ? "fossil" : "elec";
+    return kind === rising ? Math.pow(1 + ESCALATION, year) : 1;
+  };
+  const baseYearCost = (y: number) => baseElecCost * yearMult("elec", y) + baseFossilCost * yearMult("fossil", y);
 
-    if (b === "gas") {
-      const therms = heatingBtu / (100000 * SYSTEMS.gas.afue);
-      heatCost = therms * PRICE.gasPerTherm;
-      heatCo2 = therms * EF.gasLbPerTherm;
-      heatMmbtuIn = (therms * 100000) / 1e6;
-    } else if (b === "propane") {
-      const gallons = heatingBtu / (91500 * SYSTEMS.propane.afue);
-      heatCost = gallons * PRICE.propanePerGal;
-      heatCo2 = gallons * EF.propaneLbPerGal;
-      heatMmbtuIn = (gallons * 91500) / 1e6;
-    } else {
-      const kwh = heatingBtu / 3412;
-      heatCost = kwh * PRICE.elecPerKwh;
-      heatCo2 = kwh * EF.elecLbPerKwh;
-      heatMmbtuIn = (kwh * 3412) / 1e6;
-    }
-
-    const coolCost = acKwh * PRICE.elecPerKwh;
-    const coolCo2 = acKwh * EF.elecLbPerKwh;
-    const annualCost = heatCost + coolCost;
-
-    return {
-      id: b,
-      label: SYSTEMS[b].label,
-      annualMmbtu: heatMmbtuIn + (acKwh * 3412) / 1e6,
-      annualCost,
-      monthlyCost: annualCost / 12,
-      annualCo2Tons: (heatCo2 + coolCo2) / 2204.6,
-      installCost: INSTALL[b],
-    };
-  }
-
-  function evalHeatPump(hp: HeatPumpType): Omit<SystemResult, "pctVsBaseline" | "monthlyDelta" | "fifteenYearTotal" | "breakevenMonth"> {
-    const sys = SYSTEMS[hp];
-    const heatKwh = heatingBtu / (sys.cop * 3412);
-    const coolKwh = coolingKwh(sys.seer2);
-    const totalKwh = heatKwh + coolKwh;
-    const annualCost = totalKwh * PRICE.elecPerKwh;
-
-    return {
-      id: hp,
-      label: sys.label,
-      annualMmbtu: (totalKwh * 3412) / 1e6,
-      annualCost,
-      monthlyCost: annualCost / 12,
-      annualCo2Tons: (totalKwh * EF.elecLbPerKwh) / 2204.6,
-      installCost: INSTALL[hp],
-    };
-  }
-
-  // Escalation multipliers per year for each scenario.
-  // Electricity applies to HP costs and baseline cooling + electric heat;
-  // "fossil" applies to gas and propane heating costs.
-  function yearMult(kind: "elec" | "fossil", year: number): number {
-    const s = inputs.scenario;
-    if (s === "flat") return 1;
-    if (s === "fossilUp") return kind === "fossil" ? Math.pow(1 + ESCALATION, year) : 1;
-    return kind === "elec" ? Math.pow(1 + ESCALATION, year) : 1;
-  }
-
-  // Baseline cost split: how much of the annual cost rides on each fuel
-  function baselineCostSplit(b: Baseline): { elec: number; fossil: number } {
-    const acKwh = coolingKwh(BASELINE_AC_SEER2);
-    const coolCost = acKwh * PRICE.elecPerKwh;
-    if (b === "gas") {
-      const therms = heatingBtu / (100000 * SYSTEMS.gas.afue);
-      return { elec: coolCost, fossil: therms * PRICE.gasPerTherm };
-    }
-    if (b === "propane") {
-      const gallons = heatingBtu / (91500 * SYSTEMS.propane.afue);
-      return { elec: coolCost, fossil: gallons * PRICE.propanePerGal };
-    }
-    const kwh = heatingBtu / 3412;
-    return { elec: coolCost + kwh * PRICE.elecPerKwh, fossil: 0 };
-  }
-
-  const basePartial = evalBaseline(inputs.baseline);
-  const baseSplit = baselineCostSplit(inputs.baseline);
-
-  function baselineYearCost(year: number): number {
-    return (
-      baseSplit.elec * yearMult("elec", year) +
-      baseSplit.fossil * yearMult("fossil", year)
-    );
-  }
-
-  let baseFifteen = basePartial.installCost;
-  for (let y = 0; y < 15; y++) baseFifteen += baselineYearCost(y);
+  let baseFifteen = INSTALL[b];
+  for (let y = 0; y < 15; y++) baseFifteen += baseYearCost(y);
 
   const baseline: SystemResult = {
-    ...basePartial,
-    pctVsBaseline: 0,
-    monthlyDelta: 0,
-    fifteenYearTotal: baseFifteen,
-    breakevenMonth: null,
+    id: b, label: LABEL[b] + (inputs.hasCentralAC ? " + AC" : ""), kwh: baseKwh, therms, gallons, annualMmbtu: baseMmbtu, pctVsBaseline: 0,
+    annualCost: baseFossilCost + baseElecCost, monthlyCost: (baseFossilCost + baseElecCost) / 12, monthlyDelta: 0,
+    annualCo2Tons: baseCo2Lb / 2204.6, installCost: INSTALL[b], fifteenYearTotal: baseFifteen, breakevenMonth: null,
   };
 
-  const heatPumps: SystemResult[] = (["ashp", "ccashp", "gshp"] as HeatPumpType[]).map(
-    (hp) => {
-      const p = evalHeatPump(hp);
-      const monthlyDelta = p.monthlyCost - baseline.monthlyCost;
-      const installDelta = p.installCost - baseline.installCost;
-
-      let fifteenYearTotal = p.installCost;
-      for (let y = 0; y < 15; y++) {
-        fifteenYearTotal += p.annualCost * yearMult("elec", y);
-      }
-
-      // Breakeven: first month where cumulative total cost (install +
-      // escalated operating) drops below the baseline's cumulative total
-      let breakevenMonth: number | null = null;
-      let hpCum = p.installCost;
-      let baseCum = basePartial.installCost;
-      for (let m = 1; m <= 180 && breakevenMonth === null; m++) {
-        const y = Math.floor((m - 1) / 12);
-        hpCum += (p.annualCost * yearMult("elec", y)) / 12;
-        baseCum += baselineYearCost(y) / 12;
-        if (hpCum <= baseCum) breakevenMonth = m;
-      }
-
-      return {
-        ...p,
-        pctVsBaseline:
-          ((p.annualMmbtu - baseline.annualMmbtu) / baseline.annualMmbtu) * 100,
-        monthlyDelta,
-        fifteenYearTotal,
-        breakevenMonth,
-      };
-    }
-  );
+  let hpFifteen = INSTALL.ashp;
+  for (let y = 0; y < 15; y++) hpFifteen += hpCost * yearMult("elec", y);
+  let breakevenMonth: number | null = null;
+  let hpCum = INSTALL.ashp, baseCum = INSTALL[b];
+  const timeline = [{ year: 0, current: baseCum, heatPump: hpCum }];
+  for (let m = 1; m <= 180; m++) {
+    const y = Math.floor((m - 1) / 12);
+    hpCum += (hpCost * yearMult("elec", y)) / 12;
+    baseCum += baseYearCost(y) / 12;
+    if (breakevenMonth === null && hpCum <= baseCum) breakevenMonth = m;
+    if (m % 12 === 0) timeline.push({ year: m / 12, current: baseCum, heatPump: hpCum });
+  }
+  const hpMmbtu = hpKwh * kwhMm;
+  const heatPump: SystemResult = {
+    id: "ashp", label: LABEL.ashp, kwh: hpKwh, therms: 0, gallons: 0, annualMmbtu: hpMmbtu,
+    pctVsBaseline: ((hpMmbtu - baseMmbtu) / baseMmbtu) * 100, annualCost: hpCost, monthlyCost: hpCost / 12,
+    monthlyDelta: hpCost / 12 - baseline.monthlyCost, annualCo2Tons: (hpKwh * EF.elecLbPerKwh) / 2204.6,
+    installCost: INSTALL.ashp, fifteenYearTotal: hpFifteen, breakevenMonth,
+  };
 
   return {
     baseline,
-    heatPumps,
-    heatingLoadMmbtu: heatingBtu / 1e6,
-    coolingLoadMmbtu: coolingBtu / 1e6,
+    heatPumps: [heatPump],
+    timeline,
+    heatingLoadMmbtu: engine.loads.heatAnnualMmbtu,
+    coolingLoadMmbtu: engine.loads.coolAnnualMmbtu,
+    details: {
+      county: engine.weather.county,
+      station: engine.weather.station,
+      stationDistanceMi: engine.weather.distanceMi,
+      farFromStation: engine.weather.farMatch,
+      weatherYear: engine.weather.whichYear,
+      hpTons: eq.hpTons,
+      backupHeatShare: eq.backupHeatShare,
+      designCoverage: eq.designCoverage,
+      addsCooling: !inputs.hasCentralAC,
+      heatPumpCoolingKwh: eq.totals.hpCoolKwh,
+    },
+    engine,
+    thermostat: { heat: tHeat, cool: tCool },
+    range: null,
   };
 }

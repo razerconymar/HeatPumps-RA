@@ -1,60 +1,8 @@
 "use client";
 
-// ═════════════════════════════════════════════════════════════
-// AGENT INTEGRATION SLOT
-//
-// This file is the ONLY place the conversational agent needs to
-// be wired in. Everything else in the app stays untouched.
-//
-// Right now it renders a visible placeholder. Replace the marked
-// section below with the real agent UI.
-//
-// ─────────────────────────────────────────────────────────────
-// WHAT YOU GET (props, all optional to use)
-// ─────────────────────────────────────────────────────────────
-//
-//   context.pagesVisited   string[]  page codes in visit order,
-//                                    e.g. ["1A","1B","CALC","1E"]
-//   context.pageTitles     string[]  same list, human-readable
-//   context.entryQuestion  string    the question they picked first
-//   context.usedCalculator boolean   whether they opened the calculator
-//   context.calculatorInputs object | null
-//                                    their last calculator settings
-//                                    (home size, insulation, current
-//                                    system, etc.) if they used it
-//   context.timeSpentSeconds number  total time in the tool
-//   context.sessionToken   string    anonymous id, no personal info
-//
-// That context exists so the agent can open with something
-// specific rather than a blank prompt. Someone who spent their
-// whole visit in the money thread and ran the calculator should
-// get a different opening line than someone who only read the
-// basics.
-//
-// ─────────────────────────────────────────────────────────────
-// NOTES FOR WHOEVER BUILDS THIS
-// ─────────────────────────────────────────────────────────────
-//
-// • No personal information is available here, by design. The
-//   session token is random and not tied to any identity. Please
-//   keep it that way — do not add name/email collection.
-//
-// • The app has a text-size control and a high-contrast mode.
-//   If you use the existing CSS variables (--ink, --card, --line,
-//   --pine, etc.) and wrap font sizes in
-//   calc(Npx * var(--text-scale, 1)), the agent will inherit both
-//   automatically.
-//
-// • Content accuracy matters here. The rest of the tool cites
-//   real sources (EIA, IURC, Duke Energy, SCI REMC) and flags
-//   anything unvalidated. An agent that invents rebate amounts or
-//   cost figures would undercut that. Worth grounding it in the
-//   same page content, which is exported from data/pages.ts.
-//
-// • If the agent needs to log conversations for research, add a
-//   logger alongside the existing ones in lib/instrumentation.ts
-//   so it flows into the same CSV/JSON export.
-// ═════════════════════════════════════════════════════════════
+// Integration point for the conversational agent. The placeholder below is
+// replaced with the real agent UI; nothing else in the app needs to change.
+// See DEVELOPER_GUIDE.md for the context contract and the design constraints.
 
 export interface AgentContext {
   pagesVisited: string[];
@@ -67,9 +15,7 @@ export interface AgentContext {
 }
 
 export default function AgentPanel({ context }: { context: AgentContext }) {
-  // ═══════════════════════════════════════════════════════════
-  // REPLACE EVERYTHING BELOW THIS LINE WITH THE REAL AGENT
-  // ═══════════════════════════════════════════════════════════
+  // Placeholder: replace with the real agent UI.
   return (
     <div className="agent-slot">
       <div className="agent-slot-badge">Coming soon</div>

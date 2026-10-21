@@ -1,22 +1,13 @@
-// ─────────────────────────────────────────────────────────────
-// Minimum viable research instrumentation
+// Research instrumentation: what the tool records about a session.
 //
-// Implements exactly the six signals defined in the project's
-// research instrumentation spec, and nothing more:
-//   1. Persona selected at entry
-//   2. First module selected
-//   3. Full navigation path (ordered module ids)
-//   4. Drop-off point (last module before exit)
-//   5. Time per module (entry/exit timestamps)
-//   6. Self-reported clarity at session end
+// Signals: entry question, first page, full navigation path, drop-off point,
+// time per page, survey answers, page ratings and end-of-session clarity.
 //
-// Privacy constraints:
-//   - No PII. Sessions use an anonymous random token.
-//   - Data stays in the browser (localStorage) in v1.
-//     A later phase can POST the same payload to an endpoint.
-//   - All logging is synchronous-cheap (array pushes); no
-//     network calls during navigation.
-// ─────────────────────────────────────────────────────────────
+// No personal information. Sessions use an anonymous random token, logging is
+// in-memory array pushes with no network calls during navigation, and data
+// stays in the browser's localStorage. That last part is a known limitation:
+// it means data only reaches the team when someone exports it from the device
+// that produced it. Remote collection needs a POST endpoint added here.
 
 export interface ModuleVisit {
   moduleId: string;

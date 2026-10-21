@@ -1,17 +1,13 @@
-// ─────────────────────────────────────────────────────────────
-// Heat Pump DST - Page graph
+// Page graph: every content page, its links, and the journey threads.
 //
-// Structure follows the DST Storyboard & Navigation doc exactly:
-// alphanumeric page codes, landing page question links, and
-// "What would you like to learn next?" navigation on every page.
-// Content is drawn from the Individual DST Webpage Content doc.
-// Where that doc reuses pages (e.g., 6B repackages 2C), links
-// point to the original code per the storyboard's reuse rule.
+// Structure follows the DST Storyboard & Navigation doc: alphanumeric page
+// codes, landing page question links, and "What would you like to learn next?"
+// navigation on every page. Content comes from the Individual DST Webpage
+// Content doc. Where that doc reuses a page, links point to the original code.
 //
-// Body convention: plain paragraphs; lines starting with "## "
-// render as subheadings; lines starting with "- " render as
-// list items.
-// ─────────────────────────────────────────────────────────────
+// Body convention: plain paragraphs, lines starting with "## " render as
+// subheadings, lines starting with "- " render as list items, and bare URLs
+// become links.
 
 export const CALC = "CALC"; // 8B/8C combined calculator
 export const LANDING = "0A";
@@ -793,3 +789,35 @@ export const threadSurveys: Record<string, string> = {
   "4": "Did this change anything you believed about heat pumps?",
   "5": "Does this change your interest in a heat pump for environmental reasons?",
 };
+
+
+// ─────────────────────────────────────────────────────────────
+// CONTROL CONDITION
+//
+// The control group gets the "New to heat pumps" journey only, plus the
+// same calculator, rebates and contractor pages as the treatment version.
+// The experimental difference is structure, not content.
+//
+// Differences from the treatment version:
+//   - one fixed journey, no choice of entry point
+//   - forced linear order (no jumping ahead, no branching)
+//   - no "what would you like to learn next" menus
+//   - the side tracker still shows progress
+//   - identical pre and post surveys
+// ─────────────────────────────────────────────────────────────
+
+export const controlSequence: string[] = [
+  "6A", // what a heat pump is
+  "2B", // why they are efficient
+  "2C", // why people are interested
+  "2E", // will it work where I live
+  "2D", // what are the tradeoffs
+  CALC, // the calculator
+  "FIND_REBATES",
+  "FIND_CONTRACTORS",
+];
+
+export function controlTitle(step: string): string {
+  if (step === CALC) return "Cost calculator";
+  return getPage(step)?.title ?? step;
+}

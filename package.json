@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test \"tests/*.test.ts\"",
+    "build": "npm test && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "data:engine": "node scripts/build-engine-data.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.26.0",
@@ -18,5 +20,8 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.6"
   }
 }

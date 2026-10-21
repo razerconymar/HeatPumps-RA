@@ -1,0 +1,5 @@
+# Only the site ships. Raw data, notebooks and Python stay out of the deploy.
+data/raw/
+**/*.xlsx
+**/*.py
+**/__pycache__/

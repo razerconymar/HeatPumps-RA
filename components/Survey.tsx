@@ -144,7 +144,7 @@ export default function Survey({
   );
 }
 
-// ── 1 to 5 scale ─────────────────────────────────────────────
+// ── numeric scale (1-5 by default, or a custom range) ────────
 
 function LikertInput({
   value,

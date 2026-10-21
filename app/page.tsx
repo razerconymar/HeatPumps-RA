@@ -1,5 +1,9 @@
 "use client";
 
+// The whole tool, as one page. A `view` state decides what renders, so the
+// journey tracker and session logging run continuously without resetting.
+// Page content lives in data/pages.ts, not here.
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getPage,
@@ -83,7 +87,6 @@ export default function Home() {
   const [calcInputs, setCalcInputs] = useState<Record<string, unknown> | null>(
     null
   );
-  const [nudgeDismissed, setNudgeDismissed] = useState(false);
   // "off" = casual visitor, no surveys. "pre" | "tool" | "done" = study mode.
   const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
     "off"
@@ -408,12 +411,18 @@ export default function Home() {
       {studyStage === "tool" && (
         <StudyBar
           pagesSeen={
-            session.path.filter(
-              (p) => !p.moduleId.startsWith("priority:")
-            ).length
+            new Set(
+              session.path
+                .map((p) => p.moduleId)
+                .filter(
+                  (id) =>
+                    id !== "CALC" &&
+                    id !== "0A2" &&
+                    !id.startsWith("priority:")
+                )
+            ).size
           }
-          nudgeDismissed={nudgeDismissed}
-          onDismissNudge={() => setNudgeDismissed(true)}
+          usedCalculator={calcInputs !== null}
           onFinish={finish}
         />
       )}
@@ -774,8 +783,6 @@ function ClarityCheck({
 
 
 
-// ── Menu icon lookup ─────────────────────────────────────────
-
 // ── Accessibility panel ──────────────────────────────────────
 
 function A11yPanel({
@@ -893,6 +900,8 @@ function NavDropdown({
     </div>
   );
 }
+
+// ── Icon for a page or thread ───────────────────────────────
 
 function NavIcon({ target }: { target: string }) {
   const size = 15;
@@ -1035,46 +1044,61 @@ function MicroSurvey({
 
 // ── Study mode bar ───────────────────────────────────────────
 //
-// Persistent "I'm finished" button, always visible during a
-// research session, so nobody has to hunt for how to end.
-//
-// After a while a soft nudge appears alongside it. It is
-// dismissible and never blocks the screen: the participant
-// decides when they are done, so we do not truncate their
-// natural browsing behaviour, which is the main thing this
-// session is meant to observe.
+// Persistent progress panel and finish button, visible throughout a research
+// session. The button stays disabled until both requirements are met.
 
-const NUDGE_AFTER_PAGES = 10;
+// Requirements before a participant can finish the survey: six distinct
+// pages in any order, plus a completed calculator run.
+const REQUIRED_PAGES = 6;
 
 function StudyBar({
   pagesSeen,
-  nudgeDismissed,
-  onDismissNudge,
+  usedCalculator,
   onFinish,
 }: {
   pagesSeen: number;
-  nudgeDismissed: boolean;
-  onDismissNudge: () => void;
+  usedCalculator: boolean;
   onFinish: () => void;
 }) {
-  const showNudge = !nudgeDismissed && pagesSeen >= NUDGE_AFTER_PAGES;
+  const pagesDone = pagesSeen >= REQUIRED_PAGES;
+  const canFinish = pagesDone && usedCalculator;
 
   return (
     <div className="study-bar">
-      {showNudge && (
-        <div className="study-nudge">
-          <span>Finished exploring? You can wrap up whenever you like.</span>
-          <button
-            className="study-nudge-close"
-            onClick={onDismissNudge}
-            aria-label="Dismiss"
-          >
-            <CloseIcon size={14} />
-          </button>
+      <div className="study-progress">
+        <div className={"study-req" + (pagesDone ? " met" : "")}>
+          <span className="study-req-mark" aria-hidden>
+            {pagesDone ? "\u2713" : "\u25CB"}
+          </span>
+          Pages viewed: {Math.min(pagesSeen, REQUIRED_PAGES)} of{" "}
+          {REQUIRED_PAGES} required
         </div>
-      )}
-      <button className="study-finish-btn" onClick={onFinish}>
-        I&rsquo;m finished
+        <div className={"study-req" + (usedCalculator ? " met" : "")}>
+          <span className="study-req-mark" aria-hidden>
+            {usedCalculator ? "\u2713" : "\u25CB"}
+          </span>
+          Calculator: {usedCalculator ? "Completed" : "Not yet completed"}
+        </div>
+        <div className={"study-req" + (canFinish ? " met" : "")}>
+          <span className="study-req-mark" aria-hidden>
+            {canFinish ? "\u2713" : "\u25CB"}
+          </span>
+          Finish survey:{" "}
+          {canFinish ? "Available now" : "Available after both are met"}
+        </div>
+      </div>
+
+      <button
+        className="study-finish-btn"
+        onClick={onFinish}
+        disabled={!canFinish}
+        title={
+          canFinish
+            ? undefined
+            : "View six pages and complete the calculator first"
+        }
+      >
+        Finish survey
         <span aria-hidden>&rarr;</span>
       </button>
     </div>

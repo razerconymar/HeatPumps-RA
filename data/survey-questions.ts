@@ -1,38 +1,12 @@
-// ─────────────────────────────────────────────────────────────
-// SURVEY QUESTIONS
+// Survey questions for the pre/post study.
 //
-// Source: "Individual DST Webpage Content" document, which
-// specifies the pre-landing-page survey items and names the
-// intended dependent variables for the end-of-survey block:
-// intent to adopt, feeling prepared to make an informed
-// decision, and trust in the DST information.
+// Source: the "Individual DST Webpage Content" document, which specifies the
+// pre-landing-page items and names the end-of-survey dependent variables
+// (intent to adopt, feeling prepared to decide, trust in the information).
+// Pages viewed is also a dependent variable, captured by the tool's own
+// tracking rather than asked as a question.
 //
-// Design note from that document: pages viewed is also treated
-// as a dependent variable. That is captured automatically by the
-// tool's own tracking, so it is not asked as a question here.
-//
-// ─────────────────────────────────────────────────────────────
-// HOW TO ADD OR CHANGE A QUESTION
-// ─────────────────────────────────────────────────────────────
-//
-// Add an entry to preQuestions or postQuestions. Five types are
-// available, each rendering its own input automatically:
-//
-//   "likert"     Numeric scale. Needs scaleLabels: [low, high].
-//                Defaults to 1-5. Pass scale: [-2,-1,0,1,2] for
-//                an agree/disagree scale.
-//   "single"     Pick one. Needs options: [...].
-//   "rank"       Assign 1..n, each number usable once.
-//   "magnitude"  A number box per option, for multipliers.
-//   "text"       Free response.
-//
-// Every question needs a unique id and a prompt. Optional:
-// help (grey text under the prompt), optional: true.
-//
-// IMPORTANT: to compare a question before vs. after, it must
-// appear in BOTH lists with the SAME id. The CSV export then
-// places them side by side as pre_<id> and post_<id>.
-// ─────────────────────────────────────────────────────────────
+// See DEVELOPER_GUIDE.md for how to add or change a question.
 
 export type QuestionType =
   | "rank"
