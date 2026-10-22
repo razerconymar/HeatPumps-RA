@@ -216,6 +216,54 @@ Three constraints worth keeping:
 To log conversations for research, add a logger alongside the existing ones in `lib/instrumentation.ts` so it flows into the same CSV and JSON export.
 
 
+## Where participant data goes
+
+Answers are stored in a Postgres database and also kept in the browser as a
+backup. The database is **transport, not the archive**: export the CSV and keep
+the authoritative copy in the secure Teams folder.
+
+### One-time setup
+
+**1. Create the database.** In the Vercel dashboard, open the project, go to
+Storage, and add **Neon Postgres** from the Marketplace. Vercel sets
+`DATABASE_URL` automatically. The table is created on first write, so there is
+no migration step.
+
+**2. Set the export password.** Project Settings → Environment Variables, add
+`EXPORT_SECRET` with a long random value. Without it the export route refuses
+to run, so a missing variable can never leave the data open.
+
+**3. Redeploy** so both variables are picked up.
+
+### Getting the data out
+
+```
+https://YOUR-SITE.vercel.app/api/export?key=YOUR_EXPORT_SECRET
+```
+
+Downloads a CSV: one row per participant, one column per answer, plus usage
+statistics (pages visited, path taken, drop-off point, time spent, whether the
+calculator was used, pre and post completion). Save it to the Teams folder.
+
+### How it behaves
+
+- Sessions transmit as they happen, not only at the end, so someone who
+  abandons halfway still leaves a usable partial record.
+- Requests are debounced to roughly one per 1.5 seconds.
+- A final flush fires on tab close via `sendBeacon`, which survives page unload.
+- If the network or database is unavailable, the session keeps running and the
+  data stays in local storage. The next event retries.
+- With no `DATABASE_URL` set, local development works normally and simply skips
+  the server write.
+
+### Privacy
+
+Each participant is a random token with no link to any identity. No names, no
+emails, no IP logging. If contact details are ever collected for follow-up they
+must live somewhere separate, so identifiable information never sits beside the
+responses.
+
+
 ## Running it
 
 ```bash

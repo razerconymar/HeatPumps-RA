@@ -49,7 +49,7 @@ export const pages: Record<string, Page> = {
       { label: "Estimate cost savings for my home", target: CALC },
       { label: "Find contractors", target: "FIND_CONTRACTORS" },
       { label: "Find rebates in my area", target: "FIND_REBATES" },
-      { label: "I want more information", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 
@@ -120,7 +120,7 @@ export const pages: Record<string, Page> = {
       { label: "Estimate cost savings for my home", target: CALC },
       { label: "Find rebates in my area", target: "FIND_REBATES" },
       { label: "Find contractors", target: "FIND_CONTRACTORS" },
-      { label: "I want to learn more about heat pumps", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 
@@ -148,7 +148,7 @@ export const pages: Record<string, Page> = {
       { label: "Estimate cost savings for my home", target: CALC },
       { label: "Find rebates in my area", target: "FIND_REBATES" },
       { label: "Find contractors", target: "FIND_CONTRACTORS" },
-      { label: "I want to learn more about heat pumps", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 
@@ -170,7 +170,7 @@ export const pages: Record<string, Page> = {
       { label: "Why are people interested in heat pumps?", target: "2C" },
       { label: "Will a heat pump work where I live?", target: "2E" },
       { label: "How do I know if a heat pump would work for my home?", target: CALC },
-      { label: "I want more information", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 
@@ -638,7 +638,7 @@ export const pages: Record<string, Page> = {
     links: [
       { label: "What should I ask a contractor?", target: "3C" },
       { label: "Are there rebates or financing options?", target: "1E" },
-      { label: "Back to exploring", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 
@@ -662,7 +662,7 @@ export const pages: Record<string, Page> = {
     links: [
       { label: "Are there rebates or financing options?", target: "1E" },
       { label: "Find contractors", target: "FIND_CONTRACTORS" },
-      { label: "Back to exploring", target: EXPLORE },
+      { label: "Return to home page", target: LANDING },
     ],
   },
 };
@@ -670,14 +670,15 @@ export const pages: Record<string, Page> = {
 // ── Landing page (0A) - per storyboard, "How do heat pumps
 //    work?" is the first button ──────────────────────────────
 
+// The installer option (7A) is intentionally omitted for now and will be
+// restored later. 7A itself still exists and is reachable by link.
 export const landingLinks: PageLink[] = [
+  { label: "I'm new to heat pumps - start with the basics", target: "6A" },
   { label: "How do heat pumps work?", target: "2A" },
   { label: "Will a heat pump save me money?", target: "1A" },
   { label: "My system is failing - I need a replacement now", target: "3A" },
   { label: "I've heard mixed things. What's actually true?", target: "4A" },
   { label: "I want to reduce my carbon footprint", target: "5A" },
-  { label: "I'm new to heat pumps - start with the basics", target: "6A" },
-  { label: "I'm an HVAC installer/contractor", target: "7A" },
 ];
 
 // ── Secondary landing (progress, don't restart) ─────────────

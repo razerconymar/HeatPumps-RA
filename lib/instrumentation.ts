@@ -153,6 +153,60 @@ function persist(session: SessionLog): void {
   } catch {
     // storage unavailable — fail silently, never break the journey
   }
+  syncToServer(session);
+}
+
+// ── Server sync ─────────────────────────────────────────────
+//
+// Sends the session to /api/session so answers reach the team even when the
+// participant is on their own device. Local storage is kept as a backup, so a
+// session is never lost if the network is down.
+//
+// Debounced: a burst of logging produces one request, not ten. Failures are
+// swallowed on purpose — a participant's session must never break because the
+// database is unreachable, and the next event retries anyway.
+
+let syncTimer: ReturnType<typeof setTimeout> | undefined;
+let pendingSession: SessionLog | undefined;
+
+function syncToServer(session: SessionLog): void {
+  if (typeof window === "undefined") return;
+  pendingSession = session;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(flushToServer, 1500);
+}
+
+function flushToServer(): void {
+  const session = pendingSession;
+  if (!session) return;
+  pendingSession = undefined;
+  try {
+    void fetch("/api/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(session),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // offline or blocked — local storage still holds the session
+  }
+}
+
+// Last-ditch flush when the tab closes, so a drop-off mid-session is still
+// recorded. sendBeacon survives page unload where a normal fetch would not.
+if (typeof window !== "undefined") {
+  window.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "hidden" || !pendingSession) return;
+    try {
+      const blob = new Blob([JSON.stringify(pendingSession)], {
+        type: "application/json",
+      });
+      navigator.sendBeacon("/api/session", blob);
+      pendingSession = undefined;
+    } catch {
+      // nothing more to try
+    }
+  });
 }
 
 // Export all logged sessions as a JSON download (for research use)
