@@ -1400,6 +1400,26 @@ h1, h2, h3 {
 }
 .study-req.met .study-req-mark { color: var(--pine); }
 
+/* The calculator line doubles as a way in, so it reads as a link rather
+   than as status text. Inherits the text-size control like everything else. */
+.study-req-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: calc(12.5px * var(--text-scale, 1));
+  color: var(--pine-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.study-req-link:hover { color: var(--pine); }
+.study-req-link:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .study-finish-btn:disabled {
   background: var(--line);
   color: var(--ink-faint);

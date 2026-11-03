@@ -22,6 +22,8 @@ import {
 } from "@/data/pages";
 import Calculator from "@/components/Calculator";
 import Survey, { SurveyAnswers } from "@/components/Survey";
+import ControlFlow from "@/components/ControlFlow";
+import Welcome from "@/components/Welcome";
 import Conclusion from "@/components/Conclusion";
 import { AgentContext } from "@/components/AgentPanel";
 import { preQuestions, postQuestions } from "@/data/survey-questions";
@@ -53,12 +55,11 @@ import {
   logMicroSurvey,
   logSource,
   logSurvey,
-  exportSessions,
-  exportSessionsCsv,
   SessionLog,
 } from "@/lib/instrumentation";
 
 type View =
+  | { name: "welcome" }
   | { name: "landing" }
   | { name: "explore" }
   | { name: "page"; code: string }
@@ -74,7 +75,7 @@ export default function Home() {
   if (!sessionRef.current) sessionRef.current = createSession();
   const session = sessionRef.current;
 
-  const [view, setView] = useState<View>({ name: "landing" });
+  const [view, setView] = useState<View>({ name: "welcome" });
   const [menuOpen, setMenuOpen] = useState(false);
   const [openNav, setOpenNav] = useState<string | null>(null);
   const [a11yOpen, setA11yOpen] = useState(false);
@@ -91,21 +92,52 @@ export default function Home() {
   const [studyStage, setStudyStage] = useState<"off" | "pre" | "tool" | "done">(
     "off"
   );
+  // Which arm this participant was assigned to. Null until they start.
+  const [condition, setCondition] = useState<"exploratory" | "control" | null>(
+    null
+  );
 
+  // ── Entry ───────────────────────────────────────────────────
+  //
+  // Everyone gets the same tool. This round is feedback gathering, not a
+  // comparison: the point is to find out what to improve before release, so
+  // splitting the group would only halve the number of people who see the
+  // version that actually ships.
+  //
+  // The control condition still exists at /control and can be opened here
+  // with ?arm=control, in case the team later wants the comparison for a
+  // write-up. Nothing routes anyone there on its own.
+  //   ?arm=control  ?browse=1 (skip the questions, free browsing)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("study") === "1") {
-      logSource(session, "research-session");
-      setStudyStage("pre");
-      setFromSurvey(true);
-      setView({ name: "pre-survey" });
+    const browse = params.get("browse") === "1" || params.get("study") === "0";
+
+    if (browse) {
+      setView({ name: "landing" });
+    } else if (params.get("arm") === "control") {
+      setCondition("control");
     }
+
     if (params.toString()) {
-      // clean the URL so a refresh doesn't restart the study
+      // clean the URL so a refresh doesn't restart the session
       window.history.replaceState({}, "", window.location.pathname);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function beginStudy() {
+    setCondition("exploratory");
+    logSource(session, "feedback-session");
+    setStudyStage("pre");
+    setFromSurvey(true);
+    setView({ name: "pre-survey" });
+  }
+
+  function browseOnly() {
+    setCondition(null);
+    setStudyStage("off");
+    setView({ name: "landing" });
+  }
 
   // Assemble the context handed to the conclusion page and agent.
   function buildAgentContext(): AgentContext {
@@ -189,12 +221,30 @@ export default function Home() {
     setView({ name: "done" });
   }
 
+  // Clicking the brand goes home. Mid-study it must not start a new session:
+  // that would orphan the answers already recorded and pull a second
+  // condition from the counter, quietly unbalancing the two groups.
   function reset() {
-    sessionRef.current = createSession();
-    setStudyStage("off");
     setMenuOpen(false);
+    if (studyStage !== "off") {
+      setTrail([]);
+      setView({ name: "landing" });
+      return;
+    }
+    sessionRef.current = createSession();
+    setCondition(null);
     setTrail([]);
-    setView({ name: "landing" });
+    setView({ name: "welcome" });
+  }
+
+  // Participants drawn into the control arm get the fixed sequence instead of
+  // this page's branching journey. Same session, so the record is continuous.
+  if (condition === "control") {
+    return <ControlFlow session={session} skipIntro />;
+  }
+
+  if (view.name === "welcome") {
+    return <Welcome onStart={() => beginStudy()} onBrowse={browseOnly} />;
   }
 
   return (
@@ -225,6 +275,15 @@ export default function Home() {
               }
             />
           ))}
+          {/* Out of the dropdown and onto the bar: finishing requires the
+              calculator, so it should not be something to go hunting for. */}
+          <button
+            className="nav-item nav-item-plain"
+            onClick={() => navigate(CALC)}
+          >
+            <CalcIcon size={14} />
+            Calculator
+          </button>
           <button className="nav-item nav-item-plain" onClick={finish}>
             <Sparkles size={14} />
             Feedback
@@ -424,22 +483,15 @@ export default function Home() {
           }
           usedCalculator={calcInputs !== null}
           onFinish={finish}
+          onOpenCalculator={() => navigate(CALC)}
         />
       )}
 
       <footer className="footer-note">
-        Prototype - content marked &ldquo;in development&rdquo; is under
-        review. No personal information is collected.{" "}
+        No personal information is collected.{" "}
         <button onClick={() => setView({ name: "data-info" })}>
           Where does this data go?
         </button>
-        {studyStage === "off" && (
-          <>
-            {" "}
-            <button onClick={exportSessionsCsv}>Export results (CSV)</button>{" "}
-            <button onClick={exportSessions}>Export raw (JSON)</button>
-          </>
-        )}
       </footer>
     </main>
   );
@@ -1055,10 +1107,12 @@ function StudyBar({
   pagesSeen,
   usedCalculator,
   onFinish,
+  onOpenCalculator,
 }: {
   pagesSeen: number;
   usedCalculator: boolean;
   onFinish: () => void;
+  onOpenCalculator: () => void;
 }) {
   const pagesDone = pagesSeen >= REQUIRED_PAGES;
   const canFinish = pagesDone && usedCalculator;
@@ -1073,11 +1127,20 @@ function StudyBar({
           Pages viewed: {Math.min(pagesSeen, REQUIRED_PAGES)} of{" "}
           {REQUIRED_PAGES} required
         </div>
+        {/* The one unmet requirement people got stuck on, so this line takes
+            them straight there instead of only telling them about it. */}
         <div className={"study-req" + (usedCalculator ? " met" : "")}>
           <span className="study-req-mark" aria-hidden>
             {usedCalculator ? "\u2713" : "\u25CB"}
           </span>
-          Calculator: {usedCalculator ? "Completed" : "Not yet completed"}
+          Calculator:{" "}
+          {usedCalculator ? (
+            "Completed"
+          ) : (
+            <button className="study-req-link" onClick={onOpenCalculator}>
+              Not yet completed, open it
+            </button>
+          )}
         </div>
         <div className={"study-req" + (canFinish ? " met" : "")}>
           <span className="study-req-mark" aria-hidden>

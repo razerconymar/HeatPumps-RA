@@ -20,10 +20,14 @@ app/
   page.tsx          The whole tool. Routing, state, layout.
   layout.tsx        HTML shell. Rarely touched.
   globals.css       All styling for the entire app.
-  survey/page.tsx   The /survey research entry screen.
+  survey/page.tsx   Redirect to / (old link, kept so it does not break).
+  control/page.tsx  Forces the control arm. Thin wrapper over ControlFlow.
+  api/session/      Receives a participant's session and stores it.
+  api/export/       Downloads every stored session as CSV.
 
 components/
   Calculator.tsx    Calculator UI (the inputs and results display)
+  ControlFlow.tsx   The control condition: fixed linear sequence
   Survey.tsx        Renders any survey from a question list
   Conclusion.tsx    End-of-visit page
   AgentPanel.tsx    Slot where the AI agent plugs in
@@ -284,31 +288,57 @@ git commit -m "what changed"
 git push
 ```
 
-## The four links
+## One link, one tool
+
+Everything runs from a single URL. Participants get `/` and nothing else, and everyone sees the same version.
 
 | URL | What it is | Who gets it |
 |---|---|---|
-| `/` | Normal tool, no surveys | General sharing, demos |
-| `/survey` | **Treatment condition.** Pre-survey, free exploration, post-survey | Study participants |
-| `/control` | **Control condition.** Pre-survey, fixed linear walkthrough, post-survey | Study participants |
-| `/api` | (none yet — data storage is still pending) | — |
+| `/` | Welcome screen, pre-survey, the tool, post-survey | **Everyone** |
+| `/control` | The control condition, kept but not in use | Nobody, unless deliberately shared |
+| `/survey` | Redirects to `/` | Old link, kept so it doesn't break |
+| `/api/session` | Receives participant sessions | The tool itself |
+| `/api/export` | Downloads all results as CSV | The research team |
 
-### Treatment vs. control
+### Why there is no split
 
-Both conditions use the **same content and the same surveys**, so results are directly comparable. The experimental difference is structure only:
+This round is **formative**: the goal is finding out what to improve before release, not proving that one design beats another. Splitting participants between two versions would halve the number of people giving feedback on the version that actually ships, and the comparison it buys answers a question nobody is asking yet.
 
-| | Treatment (`/survey`) | Control (`/control`) |
+The control condition is still in the codebase and still works. If the team later wants a controlled comparison for a write-up, it can be switched back on without rebuilding it. Nothing routes anyone there on its own.
+
+The welcome screen offers two buttons: **Start** (pre-survey, tool, post-survey) and **Just explore, skip the questions**, for team demos.
+
+Query parameters, for testing:
+
+| Parameter | Effect |
+|---|---|
+| `/?browse=1` | Skip the questions, browse freely |
+| `/?arm=control` | Open the control condition |
+
+The URL is cleaned immediately after it is read, so a refresh does not restart the session.
+
+### What the control condition is, if it comes back
+
+It uses the **same content and the same surveys**. The difference is structure only:
+
+| | Exploratory | Control |
 |---|---|---|
-| Entry | Choose from seven questions | No choice, fixed start |
+| Entry | Choose from six questions | No choice, fixed start |
 | Order | Free, branching menus | Forced linear sequence |
 | Navigation | "What would you like to learn next" on every page | Next and Back only |
 | Progress rail | Yes, jump anywhere visited | Yes, but only back to pages already reached |
 | Calculator | Optional, reachable any time | A required step in the sequence |
 | Surveys | Identical | Identical |
 
-The control sequence is defined in `data/pages.ts` as `controlSequence`. To change which pages the control group sees, edit that array.
+The control sequence is defined in `data/pages.ts` as `controlSequence`. The control experience itself is `components/ControlFlow.tsx`, reachable at `/control`.
 
-Sessions are tagged in the exported data (`source` column) as `research-session` for treatment and `control` for control, so the two groups can be separated during analysis.
+Sessions are tagged in the exported CSV (`condition` column):
+
+| Value | Means |
+|---|---|
+| `feedback-session` | A participant who pressed Start. This is what you expect. |
+| *(blank)* | Someone chose "just explore", so not a participant. Filter these out. |
+| `control` | Somebody opened the control condition on purpose. |
 
 ---
 
