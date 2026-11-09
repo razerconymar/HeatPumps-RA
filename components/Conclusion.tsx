@@ -27,7 +27,7 @@ export default function Conclusion({
       </h1>
       <p className="hero-lede">
         {studyMode
-          ? "Your responses have been recorded. Please let the facilitator know you have finished. Before you go, here is a recap and a few next steps."
+          ? "Thank you, your answers have been saved. Before you go, here is a recap of what you looked at and a few next steps."
           : "You have covered a lot. Here is a recap, and some concrete things you can do next."}
       </p>
 

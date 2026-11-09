@@ -62,10 +62,7 @@ export default function ControlFlow({
   // are indistinguishable until the content itself begins.
   if (view.name === "intro") {
     return (
-      <Welcome
-        onStart={() => setView({ name: "pre-survey" })}
-        onBrowse={() => window.location.replace("/?browse=1")}
-      />
+      <Welcome onStart={() => setView({ name: "pre-survey" })} />
     );
   }
 
@@ -127,8 +124,7 @@ export default function ControlFlow({
             <section className="clarity-card">
               <h2 className="clarity-title">All done, thank you</h2>
               <p className="clarity-sub">
-                Your responses have been recorded. Please let the facilitator
-                know you have finished.
+                Your answers have been saved.
               </p>
             </section>
           )}

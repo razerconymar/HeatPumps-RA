@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// Heat Pump DST — Calculator (Basic Mode)
+// Heat Pump DST, Calculator (Basic Mode)
 //
 // Energy comes from the Indiana engine (lib/engine), a tested port of Riley's workbook
 // (Heat_Pump_Calculator.xlsx, Steps 1-5): county weather in 5°F ranges, a physics model of the

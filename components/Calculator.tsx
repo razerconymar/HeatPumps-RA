@@ -390,7 +390,7 @@ export default function Calculator({
             <li>
               Weather: {results.details.station}
               {results.details.farFromStation
-                ? ` (${fmt(results.details.stationDistanceMi)} miles away — the nearest reliable station)`
+                ? ` (${fmt(results.details.stationDistanceMi)} miles away, the nearest reliable station)`
                 : ""}
               , {results.details.weatherYear}.
             </li>
@@ -417,7 +417,7 @@ export default function Calculator({
           <span>
             Energy use comes from the project&apos;s Indiana model (county weather, 2010–2024). Bills,
             emissions and install costs still use single statewide averages ($0.17/kWh, $1.15/therm,
-            $2.63/gal) while utility-specific rates are added. Rebates aren&apos;t subtracted here —
+            $2.63/gal) while utility-specific rates are added. Rebates aren&apos;t subtracted here, so
             check the rebates page for what applies to your project. Not a substitute for a contractor
             estimate.
           </span>

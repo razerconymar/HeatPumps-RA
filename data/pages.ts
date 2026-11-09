@@ -713,7 +713,8 @@ export const persistentNav = [
   {
     heading: "Decision tools",
     links: [
-      { label: "Calculators", target: CALC },
+      // The calculator has its own button on the nav bar, so listing it here
+      // too just gave people two of the same thing side by side.
       { label: "Find rebates", target: "FIND_REBATES" },
       { label: "Find contractors", target: "FIND_CONTRACTORS" },
     ],

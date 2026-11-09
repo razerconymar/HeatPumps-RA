@@ -65,6 +65,7 @@ type View =
   | { name: "page"; code: string }
   | { name: "calc" }
   | { name: "pre-survey" }
+  | { name: "finish-check" }
   | { name: "post-survey" }
   | { name: "data-info" }
   | { name: "clarity" }
@@ -107,7 +108,9 @@ export default function Home() {
   // The control condition still exists at /control and can be opened here
   // with ?arm=control, in case the team later wants the comparison for a
   // write-up. Nothing routes anyone there on its own.
-  //   ?arm=control  ?browse=1 (skip the questions, free browsing)
+  //   ?browse=1     skip the questions entirely, for demos. Not offered on
+  //                 screen, so nobody reaches it without being told.
+  //   ?arm=control  open the control condition
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const browse = params.get("browse") === "1" || params.get("study") === "0";
@@ -133,11 +136,6 @@ export default function Home() {
     setView({ name: "pre-survey" });
   }
 
-  function browseOnly() {
-    setCondition(null);
-    setStudyStage("off");
-    setView({ name: "landing" });
-  }
 
   // Assemble the context handed to the conclusion page and agent.
   function buildAgentContext(): AgentContext {
@@ -206,13 +204,21 @@ export default function Home() {
     }
   }
 
-  function finish() {
+  // Pages visited are recorded by the instrumentation either way. Nothing is
+  // counted against the person on screen, and how much they looked at never
+  // decides what happens next.
+  function finish(confirmed = false) {
     setMenuOpen(false);
     setOpenNav(null);
-    if (studyStage === "tool") {
-      setView({ name: "post-survey" });
-    } else {
+    if (studyStage !== "tool") {
       setView({ name: "clarity" });
+      return;
+    }
+    // One offer, only to someone who never opened the calculator.
+    if (calcInputs === null && !confirmed) {
+      setView({ name: "finish-check" });
+    } else {
+      setView({ name: "post-survey" });
     }
   }
 
@@ -244,7 +250,7 @@ export default function Home() {
   }
 
   if (view.name === "welcome") {
-    return <Welcome onStart={() => beginStudy()} onBrowse={browseOnly} />;
+    return <Welcome onStart={() => beginStudy()} />;
   }
 
   return (
@@ -275,8 +281,8 @@ export default function Home() {
               }
             />
           ))}
-          {/* Out of the dropdown and onto the bar: finishing requires the
-              calculator, so it should not be something to go hunting for. */}
+          {/* The calculator is the part most people come for, so it sits on
+              the bar rather than inside a dropdown. */}
           <button
             className="nav-item nav-item-plain"
             onClick={() => navigate(CALC)}
@@ -284,7 +290,7 @@ export default function Home() {
             <CalcIcon size={14} />
             Calculator
           </button>
-          <button className="nav-item nav-item-plain" onClick={finish}>
+          <button className="nav-item nav-item-plain" onClick={() => finish()}>
             <Sparkles size={14} />
             Feedback
           </button>
@@ -370,7 +376,7 @@ export default function Home() {
           ))}
           <div className="menu-section">
             <div className="menu-heading">Information</div>
-            <button className="menu-link" onClick={finish}>
+            <button className="menu-link" onClick={() => finish()}>
               <Sparkles size={15} />
               I&rsquo;m done - quick feedback
             </button>
@@ -416,6 +422,13 @@ export default function Home() {
                 setStudyStage("tool");
                 setView({ name: "landing" });
               }}
+            />
+          )}
+
+          {view.name === "finish-check" && (
+            <FinishCheck
+              onOpenCalculator={() => navigate(CALC)}
+              onFinishAnyway={() => finish(true)}
             />
           )}
 
@@ -466,26 +479,6 @@ export default function Home() {
             />
           )}
       </div>
-
-      {studyStage === "tool" && (
-        <StudyBar
-          pagesSeen={
-            new Set(
-              session.path
-                .map((p) => p.moduleId)
-                .filter(
-                  (id) =>
-                    id !== "CALC" &&
-                    id !== "0A2" &&
-                    !id.startsWith("priority:")
-                )
-            ).size
-          }
-          usedCalculator={calcInputs !== null}
-          onFinish={finish}
-          onOpenCalculator={() => navigate(CALC)}
-        />
-      )}
 
       <footer className="footer-note">
         No personal information is collected.{" "}
@@ -1025,35 +1018,34 @@ function DataInfo() {
         <div className="module-body">
           <p>
             This tool records a small amount of anonymous information about how
-            it is used, so the research team can learn which questions matter
-            most to people and where the tool can improve.
+            it is used, so the team building it can see which questions matter
+            most to people and where the tool needs to improve.
           </p>
           <h3 className="body-subhead">What is recorded</h3>
           <ul className="body-list">
-            <li>Which entry question you picked</li>
+            <li>Which question you picked to start with</li>
             <li>Which pages you visited, and in what order</li>
             <li>Roughly how long you spent on each page</li>
-            <li>Your answer to the final one-tap feedback question</li>
+            <li>Whether you opened the calculator</li>
+            <li>Your answers to the questions at the beginning and end</li>
           </ul>
           <h3 className="body-subhead">What is never recorded</h3>
           <ul className="body-list">
             <li>Your name, email, address, or any personal information</li>
             <li>Anything about your device or location</li>
-            <li>Anything you type into the calculator</li>
+            <li>The house details you type into the calculator</li>
           </ul>
           <h3 className="body-subhead">Where it lives</h3>
           <p>
-            Right now, everything stays in your own browser. Nothing is sent to
-            a server. Each visit gets a random session token that cannot be
-            linked back to you. You can download everything this tool has
-            recorded using the export link at the bottom of the page, and you
-            can erase it at any time by clearing your browser data for this
-            site.
+            Each visit gets a random code, generated in your browser, that is
+            not connected to you in any way. The information above is stored
+            against that code in a private database only the team can reach,
+            and a copy stays in your own browser as a backup.
           </p>
           <p>
-            If a future version sends this information to the research team, it
-            will be the same anonymous signals listed above, and this page will
-            say so plainly.
+            Because the code is random and nothing identifies you, there is no
+            way to look up a particular person&rsquo;s answers, including your
+            own.
           </p>
         </div>
       </article>
@@ -1094,76 +1086,43 @@ function MicroSurvey({
   );
 }
 
-// ── Study mode bar ───────────────────────────────────────────
+// ── Leaving early ────────────────────────────────────────────
 //
-// Persistent progress panel and finish button, visible throughout a research
-// session. The button stays disabled until both requirements are met.
+// There used to be a visible checklist here: pages viewed, calculator done,
+// finish locked until both were met. It worked too well. People watched the
+// counter instead of reading, clicking through pages to unlock the exit.
+//
+// What is left is one offer, and only for somebody who never opened the
+// calculator: it is easy to miss and hard to describe in the closing
+// questions if you never saw it. The wording says nothing about how much of
+// the tool they looked at, and makes no claim about what other people think
+// of it, since that is the thing these sessions are meant to find out.
+// Anyone who already used it is sent straight on with no interruption.
 
-// Requirements before a participant can finish the survey: six distinct
-// pages in any order, plus a completed calculator run.
-const REQUIRED_PAGES = 6;
-
-function StudyBar({
-  pagesSeen,
-  usedCalculator,
-  onFinish,
+function FinishCheck({
   onOpenCalculator,
+  onFinishAnyway,
 }: {
-  pagesSeen: number;
-  usedCalculator: boolean;
-  onFinish: () => void;
   onOpenCalculator: () => void;
+  onFinishAnyway: () => void;
 }) {
-  const pagesDone = pagesSeen >= REQUIRED_PAGES;
-  const canFinish = pagesDone && usedCalculator;
-
   return (
-    <div className="study-bar">
-      <div className="study-progress">
-        <div className={"study-req" + (pagesDone ? " met" : "")}>
-          <span className="study-req-mark" aria-hidden>
-            {pagesDone ? "\u2713" : "\u25CB"}
-          </span>
-          Pages viewed: {Math.min(pagesSeen, REQUIRED_PAGES)} of{" "}
-          {REQUIRED_PAGES} required
-        </div>
-        {/* The one unmet requirement people got stuck on, so this line takes
-            them straight there instead of only telling them about it. */}
-        <div className={"study-req" + (usedCalculator ? " met" : "")}>
-          <span className="study-req-mark" aria-hidden>
-            {usedCalculator ? "\u2713" : "\u25CB"}
-          </span>
-          Calculator:{" "}
-          {usedCalculator ? (
-            "Completed"
-          ) : (
-            <button className="study-req-link" onClick={onOpenCalculator}>
-              Not yet completed, open it
-            </button>
-          )}
-        </div>
-        <div className={"study-req" + (canFinish ? " met" : "")}>
-          <span className="study-req-mark" aria-hidden>
-            {canFinish ? "\u2713" : "\u25CB"}
-          </span>
-          Finish survey:{" "}
-          {canFinish ? "Available now" : "Available after both are met"}
-        </div>
-      </div>
+    <section className="clarity-card" style={{ textAlign: "left" }}>
+      <h1 className="hero-title" style={{ marginBottom: 14 }}>
+        Here is the calculator, if you want to try it
+      </h1>
+      <p className="hero-lede" style={{ marginBottom: 20 }}>
+        It estimates running costs and payback for your own house.
+      </p>
 
-      <button
-        className="study-finish-btn"
-        onClick={onFinish}
-        disabled={!canFinish}
-        title={
-          canFinish
-            ? undefined
-            : "View six pages and complete the calculator first"
-        }
-      >
-        Finish survey
-        <span aria-hidden>&rarr;</span>
-      </button>
-    </div>
+      <div className="nav-row" style={{ gap: 10, flexWrap: "wrap" }}>
+        <button className="btn btn-primary" onClick={onOpenCalculator}>
+          Try it
+        </button>
+        <button className="btn btn-ghost" onClick={onFinishAnyway}>
+          Go to the questions
+        </button>
+      </div>
+    </section>
   );
 }
