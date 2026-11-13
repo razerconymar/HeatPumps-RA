@@ -709,11 +709,16 @@ function PageView({
             there: a hidden exit makes people close the tab instead, and a
             dropped session leaves no closing answers at all. */}
         {showExit && (
-          <button className="done-link" onClick={onFinish}>
-            {inStudy
-              ? "I am done looking around, take me to the questions"
-              : "I am done looking around"}
-          </button>
+          <div className="done-row">
+            <button className="done-link" onClick={onFinish}>
+              {inStudy
+                ? "I am done looking around, take me to the questions"
+                : "I am done looking around"}
+              <span className="done-arrow" aria-hidden>
+                &rarr;
+              </span>
+            </button>
+          </div>
         )}
       </div>
     </section>

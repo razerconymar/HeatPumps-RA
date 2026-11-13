@@ -440,26 +440,43 @@ h1, h2, h3 {
 .menu-link:hover { color: var(--warm); }
 /* ── Next links (storyboard "learn next" pattern) ── */
 .next-links { display: grid; gap: 8px; }
-/* The way out, under the options rather than competing with them. Quiet on
-   purpose: it should be findable when wanted, not an invitation to leave. */
+/* The way out, under the options and set to the right so it reads as the
+   end of the page rather than another thing to read.
+   It was a grey underlined link at 4.70:1 against the page, which clears
+   the 4.5:1 minimum only just and is hard going at 13px. Filled pine with
+   white text is 7.96:1, and the padding gives it a 44px target. */
+.done-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
 .done-link {
-  display: block;
-  margin: 18px auto 0;
-  padding: 8px 4px;
-  background: none;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 11px 18px;
+  border: 1px solid var(--pine);
+  border-radius: 10px;
+  background: var(--pine);
+  color: #fff;
   font: inherit;
-  font-size: calc(13px * var(--text-scale, 1));
-  color: var(--ink-faint);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font-size: calc(14px * var(--text-scale, 1));
+  font-weight: 600;
+  text-align: left;
   cursor: pointer;
 }
-.done-link:hover { color: var(--pine); }
+.done-arrow { font-size: 1.05em; line-height: 1; }
+.done-link:hover { background: var(--pine-deep); border-color: var(--pine-deep); }
 .done-link:focus-visible {
   outline: 2px solid var(--warm);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  /* Full width on a phone: a right-aligned button is easy to miss and
+     awkward to reach one-handed. */
+  .done-row { display: block; }
+  .done-link { width: 100%; justify-content: center; }
 }
 .next-link {
   position: relative;
@@ -909,7 +926,8 @@ h1, h2, h3 {
 .high-contrast .next-link,
 .high-contrast .journey-rail,
 .high-contrast .nav-dropdown-panel,
-.high-contrast .menu-panel {
+.high-contrast .menu-panel,
+.high-contrast .done-link {
   border-width: 2px;
 }
 .high-contrast .term {

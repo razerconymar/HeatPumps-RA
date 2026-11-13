@@ -53,9 +53,14 @@ export default function Welcome({
           <div className="study-step">
             <span className="study-step-num">3</span>
             <div>
+              {/* Says where the way out is, once, before anyone is deep in
+                  the content. Putting an exit on every page would have
+                  suggested leaving to people who were not thinking of it. */}
               <div className="study-step-title">Tell us how it went</div>
               <div className="study-step-desc">
-                Your answers shape what we fix next.
+                Your answers shape what we fix next. Choose{" "}
+                <strong>Exit survey</strong> at the top of the page whenever
+                you are ready, however much you have looked at.
               </div>
             </div>
           </div>
