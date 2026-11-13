@@ -84,6 +84,7 @@ export default function Survey({
                     value={answers[q.id] as number | undefined}
                     labels={q.scaleLabels ?? ["Low", "High"]}
                     scale={q.scale}
+                    pointLabels={q.pointLabels}
                     onChange={(n) => set(q.id, n)}
                   />
                 )}
@@ -150,14 +151,38 @@ function LikertInput({
   value,
   labels,
   scale,
+  pointLabels,
   onChange,
 }: {
   value: number | undefined;
   labels: [string, string];
   scale?: number[];
+  pointLabels?: string[];
   onChange: (n: number) => void;
 }) {
   const points = scale ?? [1, 2, 3, 4, 5];
+
+  // Worded buttons for agreement questions. Nobody should have to work out
+  // what "-1" means about a heat pump. The number behind each word is what
+  // gets recorded, so the data is the same either way, and the captions at
+  // each end are dropped because the words already say it.
+  if (pointLabels) {
+    return (
+      <div className="likert likert-worded">
+        {points.map((n, i) => (
+          <button
+            key={n}
+            className={"likert-word" + (value === n ? " on" : "")}
+            onClick={() => onChange(n)}
+            aria-pressed={value === n}
+          >
+            {pointLabels[i]}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="likert">
       <span className="likert-end">{labels[0]}</span>
@@ -170,7 +195,7 @@ function LikertInput({
             aria-pressed={value === n}
             aria-label={`${n}`}
           >
-            {n > 0 && points.some((p) => p < 0) ? `+${n}` : n}
+            {n}
           </button>
         ))}
       </div>

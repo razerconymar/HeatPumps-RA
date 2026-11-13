@@ -73,7 +73,6 @@ export default function ControlFlow({
           <div className="brand-mark" aria-hidden />
           <div>
             <div className="brand-name">Heat Pump Decision Support</div>
-            <div className="brand-sub">Plain answers, one step at a time</div>
           </div>
         </div>
       </header>

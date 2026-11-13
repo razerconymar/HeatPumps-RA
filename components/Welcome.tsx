@@ -17,7 +17,6 @@ export default function Welcome({
         <div className="brand-mark" aria-hidden />
         <div>
           <div className="brand-name">Heat Pump Decision Support</div>
-          <div className="brand-sub">Plain answers, one step at a time</div>
         </div>
       </header>
 
@@ -56,8 +55,7 @@ export default function Welcome({
             <div>
               <div className="study-step-title">Tell us how it went</div>
               <div className="study-step-desc">
-                A few minutes at the end, including the same three questions
-                again. Your answers shape what we fix next.
+                Your answers shape what we fix next.
               </div>
             </div>
           </div>
@@ -70,9 +68,8 @@ export default function Welcome({
         </div>
 
         <p className="footer-note" style={{ marginTop: 28, textAlign: "left" }}>
-          Your answers are recorded without your name or any personal
-          information. Each session gets a random code so the answers from the
-          beginning and end can be compared, and nothing identifies you.
+          Your answers are anonymous. We never record your name or any
+          personal information.
         </p>
       </section>
     </main>

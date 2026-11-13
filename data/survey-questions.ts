@@ -23,11 +23,23 @@ export interface Question {
   options?: string[];
   scaleLabels?: [string, string];
   scale?: number[];
+  /** Words shown on the buttons instead of the numbers. The number is still
+   *  what gets stored, so the exported data is unchanged. */
+  pointLabels?: string[];
   optional?: boolean;
 }
 
-// Agreement scale used by the "good investment" item.
+// Agreement items are stored as -2..+2, which keeps the midpoint at zero and
+// makes a before/after difference easy to read. Participants never see those
+// numbers: the buttons are worded, and only the number is recorded.
 const AGREE_SCALE = [-2, -1, 0, 1, 2];
+const AGREE_LABELS = [
+  "Strongly disagree",
+  "Disagree",
+  "Neutral",
+  "Agree",
+  "Strongly agree",
+];
 
 // ── PRE-SURVEY ───────────────────────────────────────────────
 // Asked before the participant reaches the landing page.
@@ -52,7 +64,7 @@ export const preQuestions: Question[] = [
     prompt:
       "How much do you agree with the following statement: Heat pumps are a good investment.",
     scale: AGREE_SCALE,
-    scaleLabels: ["Strongly disagree", "Strongly agree"],
+    pointLabels: AGREE_LABELS,
   },
 ];
 
@@ -81,7 +93,7 @@ export const postQuestions: Question[] = [
     prompt:
       "How much do you agree with the following statement: Heat pumps are a good investment.",
     scale: AGREE_SCALE,
-    scaleLabels: ["Strongly disagree", "Strongly agree"],
+    pointLabels: AGREE_LABELS,
   },
   {
     id: "intent_to_adopt",
@@ -96,7 +108,7 @@ export const postQuestions: Question[] = [
     prompt:
       "How much do you agree: I feel more prepared to make an informed decision about heat pumps.",
     scale: AGREE_SCALE,
-    scaleLabels: ["Strongly disagree", "Strongly agree"],
+    pointLabels: AGREE_LABELS,
   },
   {
     id: "trust",
@@ -104,7 +116,7 @@ export const postQuestions: Question[] = [
     prompt:
       "How much do you agree: I trust the information presented in this tool.",
     scale: AGREE_SCALE,
-    scaleLabels: ["Strongly disagree", "Strongly agree"],
+    pointLabels: AGREE_LABELS,
   },
   {
     id: "missing",

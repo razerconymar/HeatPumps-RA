@@ -56,10 +56,6 @@ h1, h2, h3 {
   font-size: calc(15px * var(--text-scale, 1));
   color: var(--pine-deep);
 }
-.brand-sub {
-  font-size: calc(12px * var(--text-scale, 1));
-  color: var(--ink-faint);
-}
 /* ── Persona selection ── */
 .hero-title {
   font-size: clamp(26px, 5vw, 34px);
@@ -444,6 +440,27 @@ h1, h2, h3 {
 .menu-link:hover { color: var(--warm); }
 /* ── Next links (storyboard "learn next" pattern) ── */
 .next-links { display: grid; gap: 8px; }
+/* The way out, under the options rather than competing with them. Quiet on
+   purpose: it should be findable when wanted, not an invitation to leave. */
+.done-link {
+  display: block;
+  margin: 18px auto 0;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: calc(13px * var(--text-scale, 1));
+  color: var(--ink-faint);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.done-link:hover { color: var(--pine); }
+.done-link:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 .next-link {
   position: relative;
   display: flex;
@@ -590,6 +607,9 @@ h1, h2, h3 {
 /* ── Print button ── */
 .print-row { margin-top: 18px; }
 /* ── Print stylesheet: only the page content prints ── */
+/* The contractor checklist exists only to be printed. */
+.print-checklist { display: none; }
+
 @media print {
   .topbar, .menu-panel, .journey-rail, .related-block,
   .nav-row, .footer-note, .thread-hint, .print-row { display: none !important; }
@@ -597,6 +617,51 @@ h1, h2, h3 {
   .shell { max-width: 100%; padding: 0; }
   .module-card { border: none; padding: 0; }
   body { background: #fff; }
+
+  /* On the contractor page, print the checklist instead of the article. The
+     explanations are for reading at home; the sheet is for the visit. */
+  .module-card.has-checklist .module-title,
+  .module-card.has-checklist .module-body { display: none !important; }
+  .print-checklist { display: block; }
+  .print-checklist h1 {
+    font-size: 19pt;
+    margin: 0 0 6pt;
+  }
+  .print-checklist-intro {
+    font-size: 10pt;
+    color: #444;
+    margin: 0 0 14pt;
+  }
+  .print-checklist-meta {
+    display: flex;
+    gap: 36pt;
+    font-size: 10pt;
+    color: #444;
+    border-bottom: 1px solid #999;
+    padding-bottom: 10pt;
+    margin-bottom: 14pt;
+  }
+  .print-checklist-meta span { flex: 1; }
+  .print-checklist-list {
+    margin: 0;
+    padding-left: 16pt;
+  }
+  .print-checklist-list li {
+    margin-bottom: 15pt;
+    page-break-inside: avoid;
+  }
+  .print-q { font-size: 11.5pt; font-weight: 700; }
+  .print-note { font-size: 9pt; color: #555; margin: 2pt 0 7pt; }
+  .print-answer-lines span {
+    display: block;
+    border-bottom: 1px solid #bbb;
+    height: 15pt;
+  }
+  .print-checklist-foot {
+    margin-top: 18pt;
+    font-size: 8.5pt;
+    color: #666;
+  }
 }
 /* ── Page meta row (thread + reading time) ── */
 .page-meta-row {
@@ -1045,6 +1110,30 @@ h1, h2, h3 {
 }
 .likert-btn:hover { border-color: var(--pine); }
 .likert-btn.on { background: var(--pine); border-color: var(--pine); color: #fff; }
+/* Worded agreement scale: the options say what they mean, so they get room
+   to be read rather than being squeezed into a row of equal boxes. */
+.likert-worded { display: flex; gap: 8px; flex-wrap: wrap; }
+.likert-word {
+  flex: 1 1 auto;
+  min-width: 110px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: calc(13.5px * var(--text-scale, 1));
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+}
+.likert-word:hover { border-color: var(--pine); }
+.likert-word.on {
+  background: var(--pine);
+  border-color: var(--pine);
+  color: #fff;
+  font-weight: 600;
+}
 /* single select */
 .single-list { display: grid; gap: 8px; }
 .single-opt {

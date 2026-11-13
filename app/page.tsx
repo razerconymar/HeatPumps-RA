@@ -24,6 +24,7 @@ import Calculator from "@/components/Calculator";
 import Survey, { SurveyAnswers } from "@/components/Survey";
 import ControlFlow from "@/components/ControlFlow";
 import Welcome from "@/components/Welcome";
+import ContractorChecklist from "@/components/ContractorChecklist";
 import Conclusion from "@/components/Conclusion";
 import { AgentContext } from "@/components/AgentPanel";
 import { preQuestions, postQuestions } from "@/data/survey-questions";
@@ -171,12 +172,17 @@ export default function Home() {
     return getPage(target)?.title ?? target;
   }
 
+  // The rail is a history of where someone has been, not a breadcrumb of how
+  // they got to this page. It used to truncate on revisit, so going back to
+  // the calculator, which most people reach early, deleted everything they
+  // had read since. The rail marks the current page by code rather than by
+  // position, so revisiting just moves the marker and keeps the list intact.
   function pushTrail(target: string) {
-    setTrail((t) => {
-      const existing = t.findIndex((s) => s.code === target);
-      if (existing >= 0) return t.slice(0, existing + 1); // backtrack truncates
-      return [...t, { code: target, title: titleFor(target) }];
-    });
+    setTrail((t) =>
+      t.some((s) => s.code === target)
+        ? t
+        : [...t, { code: target, title: titleFor(target) }]
+    );
   }
 
   function navigate(target: string, fromLanding = false) {
@@ -191,7 +197,7 @@ export default function Home() {
       pushTrail(target);
       setView({ name: "explore" });
     } else if (target === LANDING) {
-      setTrail([]);
+      // Going home is a navigation, not a reset. The journey stays.
       setView({ name: "landing" });
     } else {
       // first click from the landing page identifies the entry thread
@@ -227,13 +233,12 @@ export default function Home() {
     setView({ name: "done" });
   }
 
-  // Clicking the brand goes home. Mid-study it must not start a new session:
-  // that would orphan the answers already recorded and pull a second
-  // condition from the counter, quietly unbalancing the two groups.
+  // Clicking the brand goes home. Mid-session it must not start over: that
+  // would orphan the answers already recorded, and it would wipe the journey
+  // rail, which is the only record the person has of where they have been.
   function reset() {
     setMenuOpen(false);
     if (studyStage !== "off") {
-      setTrail([]);
       setView({ name: "landing" });
       return;
     }
@@ -263,7 +268,6 @@ export default function Home() {
           <div className="brand-mark" aria-hidden />
           <div>
             <div className="brand-name">Heat Pump Decision Support</div>
-            <div className="brand-sub">Plain answers, one step at a time</div>
           </div>
         </div>
 
@@ -399,6 +403,8 @@ export default function Home() {
               session={session}
               seenSurveys={seenSurveys}
               onSurveyDone={dismissSurvey}
+              onFinish={() => finish()}
+              inStudy={studyStage === "tool"}
             />
           )}
 
@@ -475,7 +481,10 @@ export default function Home() {
                   : ""
               }
               onJump={navigate}
-              onHome={reset}
+              // Start is the first stop in the journey, so it goes to the
+              // landing page. It used to call reset, which wiped the rail the
+              // person was clicking inside of.
+              onHome={() => navigate(LANDING)}
             />
           )}
       </div>
@@ -574,12 +583,16 @@ function PageView({
   session,
   seenSurveys,
   onSurveyDone,
+  onFinish,
+  inStudy,
 }: {
   code: string;
   onNavigate: (t: string) => void;
   session: SessionLog;
   seenSurveys: Set<string>;
   onSurveyDone: (threadCode: string) => void;
+  onFinish: () => void;
+  inStudy: boolean;
 }) {
   const page = getPage(code);
   if (!page) return null;
@@ -596,16 +609,24 @@ function PageView({
 
   return (
     <section>
+      {/* The thread name used to carry "page 3 of 6". It fought with the
+          journey rail, which shows where you actually are, and it implied a
+          fixed sequence that does not exist: every page offers somewhere
+          else to go, so nobody is ever on the last one. */}
       <div className="page-meta-row">
         {thread && (
           <div className="thread-hint" style={{ color: thread.color }}>
             <NavIcon target={code} />
-            {thread.name} &middot; page {thread.pos} of {thread.total}
+            {thread.name}
           </div>
         )}
         <div className="reading-time">{readingTime(page)}</div>
       </div>
-      <article className="module-card printable">
+      <article
+        className={
+          "module-card printable" + (code === "3C" ? " has-checklist" : "")
+        }
+      >
         <h2 className="module-title">{page.title}</h2>
         <div className="module-body">
           <GlossaryBody body={page.body} />
@@ -615,11 +636,14 @@ function PageView({
           <StubFeedbackForm pageCode={code} session={session} />
         )}
         {code === "3C" && (
-          <div className="print-row">
-            <button className="btn btn-ghost" onClick={() => window.print()}>
-              Print this guide to bring to contractor visits
-            </button>
-          </div>
+          <>
+            <div className="print-row">
+              <button className="btn btn-ghost" onClick={() => window.print()}>
+                Print the questions to take to contractor visits
+              </button>
+            </div>
+            <ContractorChecklist />
+          </>
         )}
       </article>
 
@@ -657,6 +681,15 @@ function PageView({
             );
           })}
         </div>
+
+        {/* Every page offered somewhere else to go and nowhere to stop. The
+            only way out was a nav item at the top of the screen, which is
+            not where anyone looks when they have finished reading. */}
+        {inStudy && (
+          <button className="done-link" onClick={onFinish}>
+            I am done looking around, take me to the questions
+          </button>
+        )}
       </div>
     </section>
   );
