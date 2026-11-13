@@ -210,9 +210,25 @@ export default function Home() {
     }
   }
 
-  // Pages visited are recorded by the instrumentation either way. Nothing is
-  // counted against the person on screen, and how much they looked at never
-  // decides what happens next.
+  // How many distinct content pages this person has read. The calculator and
+  // the "explore more" index are not content, so they do not count.
+  //
+  // This decides one thing only: whether the exit link has appeared at the
+  // bottom of the page yet. It is never shown as a number, never blocks
+  // anything, and "Exit survey" in the nav works from the first page, so
+  // anyone who wants to stop sooner always can.
+  const EXIT_LINK_AFTER = 6;
+
+  function pagesSeen(): number {
+    return new Set(
+      session.path
+        .map((p) => p.moduleId)
+        .filter(
+          (id) => id !== "CALC" && id !== "0A2" && !id.startsWith("priority:")
+        )
+    ).size;
+  }
+
   function finish(confirmed = false) {
     setMenuOpen(false);
     setOpenNav(null);
@@ -294,9 +310,11 @@ export default function Home() {
             <CalcIcon size={14} />
             Calculator
           </button>
+          {/* "Feedback" read like a suggestion box. This is the way out of
+              the session, so it says so. */}
           <button className="nav-item nav-item-plain" onClick={() => finish()}>
             <Sparkles size={14} />
-            Feedback
+            Exit survey
           </button>
         </nav>
 
@@ -382,7 +400,7 @@ export default function Home() {
             <div className="menu-heading">Information</div>
             <button className="menu-link" onClick={() => finish()}>
               <Sparkles size={15} />
-              I&rsquo;m done - quick feedback
+              Exit survey
             </button>
           </div>
         </nav>
@@ -405,6 +423,7 @@ export default function Home() {
               onSurveyDone={dismissSurvey}
               onFinish={() => finish()}
               inStudy={studyStage === "tool"}
+              showExit={pagesSeen() >= EXIT_LINK_AFTER}
             />
           )}
 
@@ -585,6 +604,7 @@ function PageView({
   onSurveyDone,
   onFinish,
   inStudy,
+  showExit,
 }: {
   code: string;
   onNavigate: (t: string) => void;
@@ -593,6 +613,7 @@ function PageView({
   onSurveyDone: (threadCode: string) => void;
   onFinish: () => void;
   inStudy: boolean;
+  showExit: boolean;
 }) {
   const page = getPage(code);
   if (!page) return null;
@@ -682,12 +703,16 @@ function PageView({
           })}
         </div>
 
-        {/* Every page offered somewhere else to go and nowhere to stop. The
-            only way out was a nav item at the top of the screen, which is
-            not where anyone looks when they have finished reading. */}
-        {inStudy && (
+        {/* Appears once someone has read a few pages, so the end of the
+            session is not the first thing suggested to them. Anyone who
+            wants to stop sooner uses Exit survey in the nav, which is always
+            there: a hidden exit makes people close the tab instead, and a
+            dropped session leaves no closing answers at all. */}
+        {showExit && (
           <button className="done-link" onClick={onFinish}>
-            I am done looking around, take me to the questions
+            {inStudy
+              ? "I am done looking around, take me to the questions"
+              : "I am done looking around"}
           </button>
         )}
       </div>
