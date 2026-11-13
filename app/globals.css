@@ -249,6 +249,7 @@ h1, h2, h3 {
 .clarity-title { font-size: calc(22px * var(--text-scale, 1)); color: var(--pine-deep); margin-bottom: 8px; }
 .clarity-sub { color: var(--ink-soft); margin-bottom: 24px; font-size: calc(15px * var(--text-scale, 1)); }
 .clarity-options { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.shell { padding-bottom: 88px; }
 .footer-note {
   margin-top: 48px;
   font-size: calc(12px * var(--text-scale, 1));
@@ -445,38 +446,37 @@ h1, h2, h3 {
    It was a grey underlined link at 4.70:1 against the page, which clears
    the 4.5:1 minimum only just and is hard going at 13px. Filled pine with
    white text is 7.96:1, and the padding gives it a 44px target. */
-.done-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-.done-link {
+/* The way out, pinned to the bottom right of the window.
+   It began as a grey underlined link at 4.70:1 against the page, which
+   clears the 4.5:1 minimum only just and is hard going at 13px. White on
+   pine is 7.96:1, and the padding gives it a 44px target. Fixed rather
+   than in the page flow so it does not depend on scrolling to the end. */
+.exit-fab {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 40;
   display: inline-flex;
   align-items: center;
   gap: 9px;
   min-height: 44px;
-  padding: 11px 18px;
+  padding: 12px 20px;
   border: 1px solid var(--pine);
-  border-radius: 10px;
+  border-radius: 999px;
   background: var(--pine);
   color: #fff;
   font: inherit;
   font-size: calc(14px * var(--text-scale, 1));
   font-weight: 600;
-  text-align: left;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(20, 61, 47, 0.28);
 }
-.done-arrow { font-size: 1.05em; line-height: 1; }
-.done-link:hover { background: var(--pine-deep); border-color: var(--pine-deep); }
-.done-link:focus-visible {
-  outline: 2px solid var(--warm);
-  outline-offset: 3px;
-}
-@media (max-width: 600px) {
-  /* Full width on a phone: a right-aligned button is easy to miss and
-     awkward to reach one-handed. */
-  .done-row { display: block; }
-  .done-link { width: 100%; justify-content: center; }
+.exit-fab-arrow { font-size: 1.05em; line-height: 1; }
+.exit-fab:hover { background: var(--pine-deep); border-color: var(--pine-deep); }
+.exit-fab:focus-visible { outline: 2px solid var(--warm); outline-offset: 3px; }
+@media print { .exit-fab { display: none !important; } }
+@media (prefers-reduced-motion: no-preference) {
+  .exit-fab { transition: background 0.15s ease; }
 }
 .next-link {
   position: relative;
@@ -927,7 +927,7 @@ h1, h2, h3 {
 .high-contrast .journey-rail,
 .high-contrast .nav-dropdown-panel,
 .high-contrast .menu-panel,
-.high-contrast .done-link {
+.high-contrast .exit-fab {
   border-width: 2px;
 }
 .high-contrast .term {

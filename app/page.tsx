@@ -218,6 +218,12 @@ export default function Home() {
   // anything, and "Exit survey" in the nav works from the first page, so
   // anyone who wants to stop sooner always can.
   const EXIT_LINK_AFTER = 6;
+  // Whether the floating exit has taken over from the nav item. It belongs
+  // on the content screens only: not over a survey, the calculator results
+  // or the closing pages, where it would sit on top of what matters.
+  const exitReady = pagesSeen() >= EXIT_LINK_AFTER;
+  const isToolView =
+    view.name === "page" || view.name === "landing" || view.name === "explore";
 
   function pagesSeen(): number {
     return new Set(
@@ -310,12 +316,18 @@ export default function Home() {
             <CalcIcon size={14} />
             Calculator
           </button>
-          {/* "Feedback" read like a suggestion box. This is the way out of
-              the session, so it says so. */}
-          <button className="nav-item nav-item-plain" onClick={() => finish()}>
-            <Sparkles size={14} />
-            Exit survey
-          </button>
+          {/* The only way out before the floating button appears. Once that
+              button is on screen this would be a second copy of the same
+              thing, so it steps aside and there is always exactly one. */}
+          {!exitReady && (
+            <button
+              className="nav-item nav-item-plain"
+              onClick={() => finish()}
+            >
+              <Sparkles size={14} />
+              Exit survey
+            </button>
+          )}
         </nav>
 
         <div className="topbar-search">
@@ -422,8 +434,6 @@ export default function Home() {
               seenSurveys={seenSurveys}
               onSurveyDone={dismissSurvey}
               onFinish={() => finish()}
-              inStudy={studyStage === "tool"}
-              showExit={pagesSeen() >= EXIT_LINK_AFTER}
             />
           )}
 
@@ -514,6 +524,18 @@ export default function Home() {
           Where does this data go?
         </button>
       </footer>
+
+      {/* Pinned to the corner of the window rather than to the end of the
+          page, so it is in reach wherever someone has scrolled to. Appears
+          once six pages have been read, and replaces the nav item. */}
+      {exitReady && isToolView && (
+        <button className="exit-fab" onClick={() => finish()}>
+          Exit survey
+          <span className="exit-fab-arrow" aria-hidden>
+            &rarr;
+          </span>
+        </button>
+      )}
     </main>
   );
 }
@@ -603,8 +625,6 @@ function PageView({
   seenSurveys,
   onSurveyDone,
   onFinish,
-  inStudy,
-  showExit,
 }: {
   code: string;
   onNavigate: (t: string) => void;
@@ -612,8 +632,6 @@ function PageView({
   seenSurveys: Set<string>;
   onSurveyDone: (threadCode: string) => void;
   onFinish: () => void;
-  inStudy: boolean;
-  showExit: boolean;
 }) {
   const page = getPage(code);
   if (!page) return null;
@@ -708,18 +726,6 @@ function PageView({
             wants to stop sooner uses Exit survey in the nav, which is always
             there: a hidden exit makes people close the tab instead, and a
             dropped session leaves no closing answers at all. */}
-        {showExit && (
-          <div className="done-row">
-            <button className="done-link" onClick={onFinish}>
-              {inStudy
-                ? "I am done looking around, take me to the questions"
-                : "I am done looking around"}
-              <span className="done-arrow" aria-hidden>
-                &rarr;
-              </span>
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );
